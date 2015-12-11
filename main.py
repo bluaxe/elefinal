@@ -35,7 +35,7 @@ def create():
 	curse = mysql.connect().cursor()
 	curse.execute(create_table)
 	data = curse.fetchone()
-	return "done"
+	return render_template("info.html", info="done")
 
 @app.route("/")
 def index():
@@ -50,11 +50,11 @@ def login_action():
 	curse.execute(sql)
 	data = curse.fetchone()
 	if data is None:
-		return "user not found"
+		return render_template("info.html", info="user not found")
 	print data, passwd
 	if data[2]==passwd:
-		return "ok"
-	return "password not correct"
+		return render_template("info.html", info="login ok")
+	return render_template("info.html", info="password not correct")
 
 @app.route("/login")
 def login_page():
@@ -78,7 +78,7 @@ def reg_action():
 		print e
 		ret="already exists"
 	finally:
-		return ret
+		return render_template("info.html", info=ret)
 
 @app.route("/reg")
 def reg_page():
