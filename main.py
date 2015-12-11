@@ -2,6 +2,8 @@ from functools import wraps
 from flask import *
 
 from flaskext.mysql import MySQL
+from flask.ext.redis import FlaskRedis
+
 
 app = Flask(__name__)
 app.secret_key = 'A0Zr98j/3yX R~XHH!jDLfdsa22'
@@ -13,6 +15,9 @@ app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 
 mysql = MySQL()
 mysql.init_app(app)
+
+app.config['REDIS_URL'] = "redis://:@dl.bile.dog:6379/"
+cache = FlaskRedis(app)
 
 create_table = '''
 create table if not exists users(
@@ -32,6 +37,16 @@ get_user = '''
 select * from users where name='%s'
 '''
 
+def init():
+	pass
+
+def count_request(func):
+	@wraps(func)
+	def func_wrapper(*args, **kwargs):
+		cache.incr("count", 1)
+		return func(*args, **kwargs)
+	return func_wrapper
+
 def need_login(func):
 	@wraps(func)
 	def func_wrapper(*args, **kwargs):
@@ -41,6 +56,7 @@ def need_login(func):
 	return func_wrapper
 
 @app.route("/create")
+@count_request
 def create():
 	curse = mysql.connect().cursor()
 	curse.execute(create_table)
@@ -48,8 +64,9 @@ def create():
 	return render_template("info.html", info="done")
 
 @app.route("/")
+@count_request
 def index():
-	return render_template("index.html", reg=url_for("reg_page"), login=url_for("login_page"))
+	return render_template("index.html", reg=url_for("reg_page"), login=url_for("login_page"), count=cache.get("count"))
 
 @app.route("/login", methods=["post"])
 def login_action():
@@ -112,4 +129,5 @@ def reg_page():
 	return render_template("reg.html", url=url_for("reg_action"))
 
 
+init()
 app.run(host="0.0.0.0", port=8080, debug=True)
