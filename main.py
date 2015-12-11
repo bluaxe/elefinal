@@ -1,8 +1,10 @@
+from functools import wraps
 from flask import *
 
 from flaskext.mysql import MySQL
 
 app = Flask(__name__)
+app.secret_key = 'A0Zr98j/3yX R~XHH!jDLfdsa22'
 
 app.config['MYSQL_DATABASE_USER'] = 'root'
 app.config['MYSQL_DATABASE_PASSWORD'] = 'hack15DL'
@@ -30,6 +32,14 @@ get_user = '''
 select * from users where name='%s'
 '''
 
+def need_login(func):
+	@wraps(func)
+	def func_wrapper(*args, **kwargs):
+		if 'login' not in session:
+			return redirect(url_for("login_page"))
+		return func(*args, **kwargs)
+	return func_wrapper
+
 @app.route("/create")
 def create():
 	curse = mysql.connect().cursor()
@@ -53,12 +63,29 @@ def login_action():
 		return render_template("info.html", info="user not found")
 	print data, passwd
 	if data[2]==passwd:
-		return render_template("info.html", info="login ok")
+		session['login'] = 1
+		# return render_template("info.html", info="login ok")
+		return redirect(url_for("home"))
 	return render_template("info.html", info="password not correct")
 
 @app.route("/login")
 def login_page():
+	if 'login' in session:
+		# return render_template("info.html", info="already loged in.")
+		redirect(url_for("home"))	
 	return render_template("login.html", url=url_for("login_action"))
+
+@app.route("/home")
+@need_login
+def home():
+	return render_template("home.html")
+
+
+@app.route("/logout")
+@need_login
+def logout():
+	session.pop('login', None)
+	return render_template("logout.html")
 
 @app.route("/reg", methods=["post"])
 def reg_action():
