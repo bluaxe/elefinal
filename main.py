@@ -242,15 +242,15 @@ def page_not_found(e):
 
 @app.route("/seller")
 def seller():
-	return render_template('seller.html')
+	return render_template('seller.html', kv=get_kv())
 
 @app.route("/buyer")
 def buyer():
-	return render_template('buyer.html')
+	return render_template('buyer.html', kv=get_kv())
 
 @app.route("/sender")
 def sender():
-	return render_template("sender.html")
+	return render_template("sender.html", kv=get_kv())
 
 init()
-app.run(host="0.0.0.0", port=8080, debug=True)
+app.run(host="0.0.0.0", port=8082, debug=True)
