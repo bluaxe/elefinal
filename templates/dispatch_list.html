@@ -3,20 +3,75 @@
 {% block title%}配送人员抢单{% endblock%}
 
 {% block content %}
-
 <head>
-	<title>外卖配送单信息</title>
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>外卖配送单信息</title>
+<style type="text/css">
+		div#map{height:500px}
+    div#container{height:500px}
+</style>
+<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=otOdjVKhA3mDttoGqsaDlyuP">
+//v2.0版本的引用方式：src="http://api.map.baidu.com/api?v=2.0&ak=您的密钥"
+//v1.4版本及以前版本的引用方式：src="http://api.map.baidu.com/api?v=1.4&key=您的密钥&callback=initialize"
+</script>
 </head>
-	<div class="row">
-		<div class="col-md-8">
-			<p>地图</p>
+	<div class="row" id="map">
+		<div class="col-md-8" id="container">
+<script type="text/javascript">
+
+function initMap(){
+createMap();//创建地图
+setMapEvent();//设置地图事件
+addMapControl();//向地图添加控件
+}
+
+//创建地图函数：
+function createMap(){
+var map = new BMap.Map("container");//在百度地图容器中创建一个地图
+var point = new BMap.Point(121.380901337,31.2458896637);//定义一个中心点坐标
+map.centerAndZoom(point,17);//设定地图的中心点和坐标并将地图显示在地图容器中
+window.map = map;//将map变量存储在全局
+var marker = new BMap.Marker(point);  // 创建标注
+map.addOverlay(marker);
+marker.setAnimation(BMAP_ANIMATION_BOUNCE);
+}
+
+//地图事件设置函数：
+function setMapEvent(){
+map.enableDragging();//启用地图拖拽事件，默认启用(可不写)
+map.enableScrollWheelZoom();//启用地图滚轮放大缩小
+map.enableDoubleClickZoom();//启用鼠标双击放大，默认启用(可不写)
+map.enableKeyboard();//启用键盘上下左右键移动地图
+}
+
+//地图控件添加函数：
+function addMapControl(){
+//向地图中添加缩放控件
+var ctrl_nav = new BMap.NavigationControl({anchor:BMAP_ANCHOR_TOP_LEFT,type:BMAP_NAVIGATION_CONTROL_LARGE});
+map.addControl(ctrl_nav);
+//向地图中添加缩略图控件
+var ctrl_ove = new BMap.OverviewMapControl({anchor:BMAP_ANCHOR_BOTTOM_RIGHT,isOpen:1});
+map.addControl(ctrl_ove);
+//向地图中添加比例尺控件
+var ctrl_sca = new BMap.ScaleControl({anchor:BMAP_ANCHOR_BOTTOM_LEFT});
+map.addControl(ctrl_sca);
+}
+initMap();//创建和初始化地图
+
+/*var map = new BMap.Map("container");          // 创建地图实例
+var point = new BMap.Point(121, 31);  // 创建点坐标
+map.centerAndZoom(point, 15);                 // 初始化地图，设置中心点坐标和地图级别
+*/
+</script>
+
 		</div>
 		<div class="col-md-4">
 			<h2>最新外卖配送单列表</h2>
 			{% for order in orders %}
 
 				<script>
-		if ({{order['latitude']}} < 5)
+		if ({{order['latitude']}} > 5)
 {
 document.write("<div>")
 document.write("<li>")
