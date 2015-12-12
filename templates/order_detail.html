@@ -79,6 +79,7 @@
 							window.map.clearOverlays();
 							var new_point = new BMap.Point(longitude,latitude);
 							var marker = new BMap.Marker(new_point);
+							window.map.centerAndZoom(new_point,20);
 							window.map.addOverlay(marker);              // 将标注添加到地图中
 							window.map.panTo(new_point);
 
