@@ -9,11 +9,8 @@
 <meta http-equiv="refresh" content="1; url='/login'">
 {%else%}
 <body>
-	<h1>配送主页</h1>
-   <!--<h3><a href="/dispatch_list">抢单</a></h3>-->
-
-   <a class="btn btn-danger btn-lg btn-block " href="/dispatch_list">抢单</a>
-  
+	<h1 class="text-primary">配送订单信息</h1>
+   <!--<h3><a href="/dispatch_list">抢单</a></h3>-->  
 
   <!-- <h3 class="text-warning">配送中订单</h3>
    <div>
@@ -45,7 +42,6 @@ document.write("<a href='{{url_for('arrival', order_id=order['order_id'])}}' cla
    </div>
 
 -->
-
 
 <h2 class="text-success">配送中订单</h2>
 {% for order in orders %}
@@ -99,7 +95,9 @@ document.write("<a href='{{url_for('arrival', order_id=order['order_id'])}}' cla
     </table>
 </div>
 <a href='{{url_for('arrival', order_id=order['order_id'])}}' class='btn btn-primary'>送达</a>
-
+<br />
+<br />
+<br />
 {%endif%}
 {%endfor%}
 

@@ -14,18 +14,18 @@
 </head>
 <body>
 	<div class="row">
-		<h1 class="text-success col-md-offset-5">配送员狂奔中</h1>
-	</div>
-	<div id='box' class="row">
-		<div id="map" class="col-md-8 col-md-offset-2"></div>
+		{%if order['status'] == 'making'%}
+		<h1 class="text-success col-md-offset-5">卖家正在为您准备美食...请耐心等待</h1>
+		{%endif%}
+		{%if order['status'] == 'on_the_way'%}
+		<h1 class="text-success col-md-offset-5">配送员狂奔中...</h1>
+		{%endif%}
+		{%if order['status'] == 'done'%}
+		<h1 class="text-success col-md-offset-5">您的订单已完成,欢迎下次品尝</h1>
+		{%endif%}
 	</div>
 
-	{{order}}
-	<div>
-		{% for l in log%}
-			<li> {{l}} </li>
-		{%endfor%}
-	</div>
+
 	<script type="text/javascript">
 	//test-----
 	//var location_x = 121.380901337+Math.random()*0.000001//初始经度
@@ -66,7 +66,6 @@
 
 		function update_sender_pose(){
 			sender_uid = $("#sender_uid").html().trim()
-			document.getElementById("peisong").value=sender_uid.toString();
 			$.ajax({
 		        type : "GET",
 		        url : "/get_sender_pos/"+sender_uid,
@@ -121,13 +120,13 @@
 	</script>
 
 	<div class="bs-example">
-	<div id="status" style="hidden;" >{{order['status']}}</div>
-	<div id="sender_uid" style="hidden;" >{{order['sender_uid']}}</div>
+	<div id="status" style="display:none" >{{order['status']}}</div>
+	<div id="sender_uid" style="display:none" >{{order['sender_uid']}}</div>
     <table class="table">
         <thead>
             <tr>
                 <th>订单信息</th>
-                <th>信息</th>
+                
             </tr>
         </thead>
 
@@ -153,21 +152,56 @@
             </tr>
 
              <tr>
-                <td>订单状态</td>
-                <td>{{ order['status']}}</td>
-            </tr>
+               <td>订单状态</td>
 
-            <tr>
-                <td>配送员ID</td>
-                <td><input id="peisong"></input></td>
-            </tr>
+               {%if order['status'] == 'making'%}
+					<td>美食制作中</td>
+					{%endif%}
+				   {%if order['status'] == 'on_the_way'%}
+					<td>配送中</td>
+			      {%endif%}
+				   {%if order['status'] == 'done'%}
+		         <td>已完成</td>
+		         {%endif%}
 
+   
+            </tr>
              <tr>
                 <td>配送员电话</td>
                 <td>130-0000-0000</td>
             </tr>
         </tbody>
     </table>
+</div>
+<br />
+<br />
+<br />
+
+<div class="bs-example">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>订单执行进度</th>
+            
+            </tr>
+        </thead>
+
+        <tbody>
+
+        {% for l in log%}
+			<tr>
+                <td>{{l}}</td>
+         </tr>
+		  {%endfor%}
+            
+        </tbody>
+    </table>
+</div>
+
+
+
+<div id='box' class="row">
+		<div id="map" class="col-md-8 col-md-offset-2"></div>
 </div>
 
 
