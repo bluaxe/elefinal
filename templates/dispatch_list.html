@@ -85,11 +85,13 @@ document.write("最晚送达时间{{order['deliver_time']}} <br />")
 document.write("电话{{order['phone']}} <br />")
 document.write("维度{{order['latitude']}} <br />")
 document.write("经度{{order['longitude']}} <br />")
+document.write("<a")
 document.write("</li>")
 document.write("</div>")
 
 }
 		</script>
+	<a href="{{url_for('sender_post', order_id=order['order_id'])}}" class="btn btn-primary">抢单</a>
 		{%endfor%}
 		</div>
 	</div>

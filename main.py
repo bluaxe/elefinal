@@ -20,7 +20,7 @@ app.secret_key = 'A0Zr98j/3yX R~XHH!jDLfdsa22'
 app.config['MYSQL_DATABASE_USER'] = 'root'
 app.config['MYSQL_DATABASE_PASSWORD'] = 'hack15DL'
 app.config['MYSQL_DATABASE_DB'] = 'test'
-app.config['MYSQL_DATABASE_HOST'] = 'localhost'
+app.config['MYSQL_DATABASE_HOST'] = '115.159.160.136'
 
 mysql = MySQL()
 mysql.init_app(app)
@@ -125,6 +125,7 @@ def login_action():
 	if data[2]==passwd:
 		session['login'] = 1
 		session['type'] = data[3]
+		session['uid'] = data[1]
 		# return render_template("info.html", info="login ok")
 		if session['type'] ==0 :
 			return redirect(url_for("user_commit"))
@@ -302,11 +303,25 @@ def rest_post():
 def dispatch_list():
 	orders = cache.smembers("rest_order_list")
 	data = list()
+	otw_orders = cache.smembers("on_the_way_orders")
 	for order_id in orders:
+		if order_id in otw_orders:
+			continue
 		order = eval(cache.hget("rest_orders", order_id))
 		data.append(order)
 	return render_template("/dispatch_list.html", orders=data)
 
+@app.route("/sender_post/<int:order_id>")
+@need_login
+def sender_post(order_id):
+	order = eval(cache.hget("rest_orders", order_id))
+	uid = session['uid']
+	ret = cache.sadd("on_the_way_orders", order_id)
+	if ret==0:
+		return render_template("/info.html", info="get failed.")
+	cache.sadd(uid, order_id)
+	cache.hset("order_sender", order_id, uid)
+	return render_template("/info.html", info="ok")
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template('404.html'),404
