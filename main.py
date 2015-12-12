@@ -1,3 +1,6 @@
+ #!/usr/bin/python
+ # -*- coding: utf-8 -*-
+"你好"
 from functools import wraps
 from flask import *
 import random
@@ -213,6 +216,11 @@ def reg_action():
 def reg_page():
 	return render_template("reg.html", url=url_for("reg_action"), kv=get_kv())
 
+def add_order_info(order_id, info):
+	time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")	
+	# cache.zadd()
+	print time
+
 @app.route("/receive_rest_order/<int:order_id>", methods=["post"])
 def receive_rest_order(order_id):
 	ret = eval(cache.hget("user_orders", order_id))
@@ -247,6 +255,7 @@ def receive_rest_order(order_id):
 	cache.hset("rest_orders", order_id, str(rest_order))	
 	cache.sadd("rest_order_list", order_id)
 	order = eval(str(rest_order))
+	add_order_info(order_id, "美食已出锅，正在等待配送")	
 	# print order
 	return render_template("info.html", info="ok", url=url_for("rest_post"))
 
@@ -264,7 +273,7 @@ def receive_user_order(order_id):
 	ret['order_id'] = str(ret['order_id'])
 	cache.sadd("user_order_list", order_id)
 	cache.hset("user_orders", order_id, ret)
-	
+	add_order_info(order_id, "客户已下单")	
 	return render_template("info.html", info="ok", url=url_for("user_commit"))	
 
 @app.route("/user_commit")
@@ -386,6 +395,7 @@ def sender_post(order_id):
 		return render_template("/info.html", info="get failed.", kv=get_kv(), url=url_for("dispatch_list"))
 	cache.sadd(uid, order_id)
 	cache.hset("order_sender", order_id, uid)
+	add_order_info(order_id, "配送员已接单，正在配送中")
 	return render_template("/info.html", info="ok", kv=get_kv(), url=url_for("dispatch_list"))
 
 @app.errorhandler(404)
