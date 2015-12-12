@@ -261,6 +261,7 @@ def receive_user_order(order_id):
 		"sort": { "order_id" : "desc"},
 	}
 	ret = es.search(index="hackathon", doc_type='order', body=query)['hits']['hits'][0]['_source']
+	ret['order_id'] = str(ret['order_id'])
 	cache.sadd("user_order_list", order_id)
 	cache.hset("user_orders", order_id, ret)
 	
@@ -376,7 +377,9 @@ def dispatch_list():
 @app.route("/sender_post/<int:order_id>")
 @need_login
 def sender_post(order_id):
-	order = eval(cache.hget("rest_orders", order_id))
+	order_id=str(order_id)
+	cache_ret = cache.hget("rest_orders", order_id)
+	order = eval(cache_ret)
 	uid = session['uid']
 	ret = cache.sadd("on_the_way_orders", order_id)
 	if ret==0:
@@ -416,7 +419,7 @@ def sender_api():
 	save_pos(uid, pos)
 	# print uid, longitude, latitude
 
-	orders = cache.smembers("rest_order_list")
+	orders = cache.hkeys("rest_orders")
 	data = list()
 	otw_orders = cache.smembers("on_the_way_orders")
 	done_orders = cache.smembers("done_orders")
@@ -430,8 +433,9 @@ def sender_api():
 		op['longitude'] = order['longitude']
 		op['latitude'] = order['latitude']
 		# print dist(pos, op)
-		if dist(pos, op) > 5000:
+		if dist(pos, op) > 500000:
 			continue
+		order['order_id'] = str(order['order_id'])
 		data.append(order)
 	return json.dumps(data)
 
