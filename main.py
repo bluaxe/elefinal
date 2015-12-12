@@ -167,6 +167,7 @@ def receive_user_order(order_id):
 		"sort": { "order_id" : "desc"},
 	}
 	ret = es.search(index="hackathon", doc_type='order', body=query)['hits']['hits'][0]['_source']
+	cache.sadd("user_order_list", order_id)
 	cache.hset("user_orders", order_id, ret)
 	user_id = ret['user_id']
 	rest_id = ret['restaurant_id']
@@ -214,7 +215,17 @@ def user_order():
 
 @app.route("/rest_post")
 def rest_post():
-	return render_template("rest_post.html")
+	orders = cache.smembers("user_order_list")
+	data = list()
+	for order_id in orders:
+		order = eval(cache.hget("user_orders", order_id))
+		send_price = 0
+		for ex in order['detail']['extra']:
+			send_price += ex['price']
+		order['send_price'] = send_price
+		order['seller_address'] = "seller_address place_holder"
+		data.append(order)
+	return render_template("rest_post.html", orders=data)
 
 @app.route("/dispatch_list")
 def dispatch_list():
