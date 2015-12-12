@@ -10,7 +10,59 @@
 {%else%}
 <body>
 	<h2>配送主页</h2>
-   <h3><a href="/dispatch_list">抢单</h3>
+   <h3><a href="/dispatch_list">抢单</a></h3>
+
+   <div>
+  		已完成订单
+  		{% for order in orders %}
+				<script>
+		if ({{order['done']}} =="1")
+{
+document.write("<div>")
+document.write("<li>")
+document.write("订单号{{order['order_id']}} <br />")
+document.write("用户号{{order['user_id']}} <br />")
+document.write("配送费{{order['dispatch_price']}} <br />")
+document.write("商家完成时间{{order['ready_time']}} <br />")
+document.write("商家地址{{order['rest_address']}} <br />")
+document.write("客户地址{{order['address']}} <br />")
+document.write("最晚送达时间{{order['deliver_time']}} <br />")
+document.write("电话{{order['phone']}} <br />")
+document.write("维度{{order['latitude']}} <br />")
+document.write("经度{{order['longitude']}} <br />")
+document.write("<a")
+document.write("</li>")
+document.write("</div>")
+document.write("<a href='{{url_for('sender_post', order_id=order['order_id'])}}' class='btn btn-primary'>抢单</a>")
+}
+		</script>
+		{%endfor%}
+		<br />
+		<br />
+   </div>
+
+
+   <div>
+  		未完成订单
+  		{% for order in orders %}
+  		{% if order['done'] == 0 %}
+  		<li>
+			订单号{{order['order_id']}} <br />
+			用户号{{order['user_id']}} <br />
+			配送费{{order['dispatch_price']}} <br />
+			商家完成时间{{order['ready_time']}} <br />
+			商家地址{{order['rest_address']}} <br />
+			客户地址{{order['address']}} <br />
+			最晚送达时间{{order['deliver_time']}} <br />
+			电话{{order['phone']}} <br />
+			维度{{order['latitude']}} <br />
+			经度{{order['longitude']}} <br />
+			<a href="{{url_for('arrival', order_id=order['order_id'])}}" class='btn btn-primary'>送达</a>
+			<br />
+  		</li>
+		{%endif%}
+		{%endfor%}
+   </div>
 </body>
 {%endif%}
 </html>

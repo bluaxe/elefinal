@@ -20,7 +20,8 @@ app.secret_key = 'A0Zr98j/3yX R~XHH!jDLfdsa22'
 app.config['MYSQL_DATABASE_USER'] = 'root'
 app.config['MYSQL_DATABASE_PASSWORD'] = 'hack15DL'
 app.config['MYSQL_DATABASE_DB'] = 'test'
-app.config['MYSQL_DATABASE_HOST'] = '115.159.160.136'
+# app.config['MYSQL_DATABASE_HOST'] = '115.159.160.136'
+app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 
 mysql = MySQL()
 mysql.init_app(app)
@@ -53,7 +54,7 @@ select * from users where name='%s'
 
 user_ids=list()
 def init():
-	ret = es.search(index="hackathon", doc_type='order', body={"size": 1000, "from": 10})
+	ret = es.search(index="hackathon", doc_type='order', body={"size": 40, "from": 10})
 	ret = ret["hits"]['hits']
 	for order in ret:
 		user_ids.append(order['_source']['user_id'])
@@ -125,7 +126,7 @@ def login_action():
 	if data[2]==passwd:
 		session['login'] = 1
 		session['type'] = data[3]
-		session['uid'] = data[1]
+		session['uid'] = data[0]
 		# return render_template("info.html", info="login ok")
 		if session['type'] ==0 :
 			return redirect(url_for("user_commit"))
@@ -304,8 +305,11 @@ def dispatch_list():
 	orders = cache.smembers("rest_order_list")
 	data = list()
 	otw_orders = cache.smembers("on_the_way_orders")
+	done_orders = cache.smembers("done_orders")
 	for order_id in orders:
 		if order_id in otw_orders:
+			continue
+		if done_orders in otw_orders:
 			continue
 		order = eval(cache.hget("rest_orders", order_id))
 		data.append(order)
@@ -322,13 +326,14 @@ def sender_post(order_id):
 	cache.sadd(uid, order_id)
 	cache.hset("order_sender", order_id, uid)
 	return render_template("/info.html", info="ok")
+
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template('404.html'),404
 
 @app.route("/seller")
 def seller():
-	return render_template('seller.html', kv=get_kv())
+	return render_template("seller.html", kv=get_kv())
 
 @app.route("/buyer")
 def buyer():
@@ -336,7 +341,25 @@ def buyer():
 
 @app.route("/sender")
 def sender():
-	return render_template("sender.html", kv=get_kv())
+	uid = session['uid']
+	my_order_ids = cache.smembers(uid)
+	orders = list()
+	done_orders = cache.smembers("done_orders")
+	for order_id in my_order_ids:
+		order = eval(cache.hget("rest_orders", order_id))
+		if order_id in done_orders:
+			order['done'] = 1
+		else:
+			order['done'] = 0
+		orders.append(order)
+
+	return render_template('sender.html', kv=get_kv(), orders=orders)
+
+@app.route("/arrival/<int:order_id>")
+def arrival(order_id):
+	return render_template("info.html", url=url_for("sender"))
+
+
 
 init()
 app.run(host="0.0.0.0", port=8080, debug=True)
