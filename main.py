@@ -305,6 +305,7 @@ def user_get_order_info(order_id):
 		order['status']="on_the_way"	
 	return order
 
+@app.route("/buyer")
 @app.route("/user_order")
 @need_login
 def user_order():
@@ -328,7 +329,7 @@ def user_order():
 			order['status']="on_the_way"
 		data.append(order)
 	# print data
-	return render_template("user_order.html", current_time=datetime.utcnow(), orders=data, kv=get_kv())
+	return render_template("buyer.html", current_time=datetime.utcnow(), orders=data, kv=get_kv())
 
 @app.route("/order_detail/<int:order_id>")
 @need_login
@@ -392,9 +393,9 @@ def page_not_found(e):
 def seller():
 	return render_template("seller.html", kv=get_kv())
 
-@app.route("/buyer")
-def buyer():
-	return render_template('buyer.html', kv=get_kv())
+#@app.route("/buyer")
+#def buyer():
+#	return render_template('buyer.html', kv=get_kv())
 
 def save_pos(uid, pos):
 	cache.hset("sender_pos", uid, str(pos))
