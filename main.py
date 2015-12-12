@@ -90,8 +90,14 @@ def get_kv():
 	else:
 		kv['user_id'] = random.choice(user_ids)
 		session['user_id'] = kv['user_id']
-	kv['type'] = session['type']
-	kv['uid'] = session['uid']
+	if 'type' in session :
+		kv['type'] = session['type']
+	else:
+		kv['type'] = -1
+	if 'uid' in session :
+		kv['uid'] = session['uid']
+	else:
+		kv['uid'] = -1
 	return kv
 
 @app.route("/create")
@@ -351,12 +357,24 @@ def seller():
 #def buyer():
 #	return render_template('buyer.html', kv=get_kv())
 
+def save_pos(uid, pos):
+	cache.hset("sender_pos", uid, str(pos))
+
+@app.route("/get_sender_pos/<int:uid>")
+def get_sender_pos(uid):
+	pos = eval(cache.hget("sender_pos", uid))
+	return json.dumps(pos)
+
 @app.route("/sender_api", methods=["post", "get"])
 def sender_api():
 	uid = request.json['uid']
 	longitude= request.json['longitude']
 	latitude= request.json['latitude']
-	print uid, longitude, latitude
+	pos=dict()
+	pos['longitude']=longitude
+	pos['latitude']=latitude
+	save_pos(uid, pos)
+	# print uid, longitude, latitude
 
 	orders = cache.smembers("rest_order_list")
 	data = list()
