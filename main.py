@@ -3,9 +3,12 @@ from flask import *
 
 from flaskext.mysql import MySQL
 from flask.ext.redis import FlaskRedis
+from flask_bootstrap import Bootstrap
 
 
 app = Flask(__name__)
+Bootstrap(app)
+
 app.secret_key = 'A0Zr98j/3yX R~XHH!jDLfdsa22'
 
 app.config['MYSQL_DATABASE_USER'] = 'root'
