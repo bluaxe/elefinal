@@ -167,7 +167,7 @@ def user_commit():
 
 @app.route("/user_order")
 def user_order():
-	return render_template("user_order.html", current_time=datetime.utcnow(), login=session['login'])
+	return render_template("user_order.html", current_time=datetime.utcnow(), kv=get_kv())
 
 @app.route("/rest_post")
 def rest_post():
