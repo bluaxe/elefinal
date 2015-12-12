@@ -85,25 +85,33 @@
 							table = ''
 							for (order in orders)
 							{
-								console.log(order);
-								console.log(orders[parseInt(order)]);
+								// console.log(order);
+								// console.log(orders[parseInt(order)]);
 								orderid = orders[parseInt(order)]['order_id']
-								table += '<table class='+'table><thead><tr><th>订单信息</th>'+
+								table += "<div class='hovertable' latitude='"+
+                                orders[parseInt(order)]['latitude']+"' long='"+
+                                orders[parseInt(order)]['longitude']+
+                                "'><table class='table' ><thead><tr><th>订单信息</th>"+
 								'<th>信息</th></tr></thead><tbody><tr><td>订单号</td><td>'+orders[parseInt(order)]["order_id"]+'</td>'+
 	            '</tr><tr><td>商家地址</td><td>'+orders[parseInt(order)]["rest_address"]+'</td></tr><tr><td>商家完成时间</td>'+
 							'<td>'+orders[parseInt(order)]["ready_time"]+'</td></tr><tr><td>客户地址</td><td>'+orders[parseInt(order)]["address"]+'</td>'+
 	            '</tr><tr><td>客户电话</td><td>'+orders[parseInt(order)]["phone"]+'</td></tr><tr><td>最晚送达时间</td>'+
 							'<td>'+orders[parseInt(order)]["deliver_time"]+'</td></tr><tr><td>配送费</td><td>'+orders[parseInt(order)]["dispatch_price"]+'</td>'+
 							'</tr></tbody></table>'
-                           + "<a class='btn btn-primary' href='/sender_post/"+orderid+"'>下单</a>"
+                           + "<a class='btn btn-primary' href='/sender_post/"+orderid+"'>下单</a></div>"
 						}
 
 						// console.log(table);
 
 						ot.innerHTML = table
+                        $(".hovertable").mouseover(function(){
+                            latitude = $(this).attr('latitude')
+                            longtitude = $(this).attr('long')
+                            console.log(latitude, longtitude)
+                        })
 	        }
 	    });
-	console.log("run update")
+	// console.log("run update")
 
 	//	console.log(order);
 
@@ -114,6 +122,11 @@
 
 	*/
 	}
+    $(document).ready(function(){
+        $(".hovertable").mouseover(function(){
+            console.log("hovertable excuted!!!!!!!!!!!!") 
+        })
+    })
 
 
 	//地图事件设置函数：
