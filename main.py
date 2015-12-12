@@ -68,6 +68,10 @@ def get_kv():
 		kv['login'] = 1
 	else:
 		kv['login'] = 0
+	if 'user_id' in session :
+		kv['user_id'] = session['user_id']
+	else:
+		kv['user_id'] = 0
 	return kv
 
 @app.route("/create")
@@ -84,7 +88,7 @@ def index():
 	urls = dict()
 	urls['reg_url']=url_for("reg_page")
 	urls['login_url']=url_for("login_page")
-	urls['user_commit_url']=url_for("user_commit")
+	urls['user_commit_url']=url_for("user_commit", user_id=149484)
 	urls['user_order_url']=url_for("user_order")
 	urls['rest_post_url']=url_for("rest_post")
 	urls['dispatch_list_url']=url_for("dispatch_list")
@@ -151,12 +155,13 @@ def reg_action():
 def reg_page():
 	return render_template("reg.html", url=url_for("reg_action"))
 
-@app.route("/user_commit")
-def user_commit():
+@app.route("/user_commit/<int:user_id>")
+def user_commit(user_id):
+	session["user_id"]=user_id
 	query = {
 		"query":{
 			"match" : {
-				"user_id" : 149484
+				"user_id" : user_id
 			}
 		},
 		"sort": { "order_id" : "desc"},
@@ -167,7 +172,8 @@ def user_commit():
 
 @app.route("/user_order")
 def user_order():
-	return render_template("user_order.html", current_time=datetime.utcnow(), kv=get_kv())
+	kv = get_kv()
+	return render_template("user_order.html", current_time=datetime.utcnow(), kv=kv)
 
 @app.route("/rest_post")
 def rest_post():
