@@ -5,9 +5,13 @@ from flask.ext.bootstrap import Bootstrap
 from flaskext.mysql import MySQL
 from flask.ext.redis import FlaskRedis
 
+from flask.ext.moment import Moment  #time module
+from datetime import datetime
+
 
 app = Flask(__name__)
 bootstrap = Bootstrap(app)
+moment = Moment(app) # time module
 app.secret_key = 'A0Zr98j/3yX R~XHH!jDLfdsa22'
 
 app.config['MYSQL_DATABASE_USER'] = 'root'
@@ -143,7 +147,7 @@ def user_commit():
 
 @app.route("/user_order")
 def user_order():
-	return render_template("user_order.html")
+	return render_template("user_order.html", current_time=datetime.utcnow(), login=session['login'])
 
 @app.route("/rest_post")
 def rest_post():
