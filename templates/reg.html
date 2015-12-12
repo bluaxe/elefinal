@@ -14,7 +14,14 @@
 			<input type="username" name="username"  id="username" class="form-control" placeholder="Username" required autofocus>
 			<label for="inputPassword" class="sr-only">Password</label>
 			<input type="password" name="password" id="password" class="form-control" placeholder="Password" required>
-			<input type="text" name="type" id="tyep" class="form-control" placeholder="0" required value="0">
+
+			<select name = "type" class="form-control">
+   	 		<option value="0">买家</option>
+    			<option value = "1">商户</option>
+    			<option value = "2">配送</option>
+  			</select>
+
+
 			<div class="checkbox">
 			</div>
 			<button class="btn btn-primary btn-block" id = “submit” type="submit">Submit</button>
