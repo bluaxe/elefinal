@@ -4,7 +4,11 @@ from flask import *
 from flaskext.mysql import MySQL
 from flask.ext.redis import FlaskRedis
 
+import elasticsearch
 
+
+
+es = elasticsearch.Elasticsearch(["115.159.160.136:9200"])
 app = Flask(__name__)
 app.secret_key = 'A0Zr98j/3yX R~XHH!jDLfdsa22'
 
@@ -55,6 +59,14 @@ def need_login(func):
 		return func(*args, **kwargs)
 	return func_wrapper
 
+def get_kv():
+	kv=dict()
+	if 'login' in session :
+		kv['login'] = 1
+	else:
+		kv['login'] = 0
+	return kv
+
 @app.route("/create")
 @count_request
 def create():
@@ -73,7 +85,8 @@ def index():
 	urls['user_order_url']=url_for("user_order")
 	urls['rest_post_url']=url_for("rest_post")
 	urls['dispatch_list_url']=url_for("dispatch_list")
-	return render_template("index.html", urls=urls)
+
+	return render_template("index.html", urls=urls, kv=get_kv())
 
 @app.route("/login", methods=["post"])
 def login_action():
@@ -137,7 +150,17 @@ def reg_page():
 
 @app.route("/user_commit")
 def user_commit():
-	return render_template("user_commit.html")
+	query = {
+		"query":{
+			"match" : {
+				"user_id" : 149484
+			}
+		},
+		"sort": { "order_id" : "desc"},
+	}
+	ret = es.search(index="hackathon", doc_type='order', body=query)
+	data = ret['hits']['hits']
+	return render_template("user_commit.html", data=data, )
 
 @app.route("/user_order")
 def user_order():

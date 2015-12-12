@@ -4,5 +4,10 @@
 </head>
 <body>
 	<h1>User commit</h1>
+	<div>
+		{% for item in data %}
+        <li><a href="{{ item.href }}">{{ item["_source"]["address"] }}</a></li>
+    	{% endfor %}
+	</div>	
 </body>
 </html>
