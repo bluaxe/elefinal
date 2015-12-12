@@ -19,13 +19,8 @@
 	<div id='box' class="row">
 		<div id="map" class="col-md-8 col-md-offset-2"></div>
 	</div>
-	<div>
-		<div> {{order['order_id']}} </div>
-		<div id="status"> {{order['status']}} </div>
-		<div id="sender_uid" style="visibility: hidden; display:inline;" > {{order['sender_uid']}} </div>
+	
 
-	</div>
-	{{order}}
 	<script type="text/javascript">
 	//test-----
 	//var location_x = 121.380901337+Math.random()*0.000001//初始经度
@@ -66,6 +61,7 @@
 
 		function update_sender_pose(){
 			sender_uid = $("#sender_uid").html().trim()
+			document.getElementById("peisong").value=sender_uid.toString();
 			$.ajax({
 		        type : "GET",
 		        url : "/get_sender_pos/"+sender_uid,
@@ -118,6 +114,56 @@
 			}
 		})
 	</script>
+
+	<div class="bs-example">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>订单信息</th>
+                <th>信息</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <tr>
+                <td>订单号</td>
+                <td>{{order['order_id']}}</td>
+            </tr>
+
+             <tr>
+                <td>创建时间</td>
+                <td>{{ order['created_at']}}</td>
+            </tr>
+
+             <tr>
+                <td>价格</td>
+                <td>{{ order['total_price']}}</td>
+            </tr>
+
+             <tr>
+                <td>餐厅名称</td>
+                <td>{{ order['restaurant_name']}}</td>
+            </tr>
+
+             <tr>
+                <td>订单状态</td>
+                <td>{{ order['status']}}</td>
+            </tr>
+
+            <tr>
+                <td>配送员ID</td>
+                <td><input id="peisong"></input></td>
+            </tr>
+
+             <tr>
+                <td>配送员电话</td>
+                <td>130-0000-0000</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+
 </body>
 </html>
 {%endblock%}
