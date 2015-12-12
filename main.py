@@ -356,6 +356,14 @@ def seller():
 def buyer():
 	return render_template('buyer.html', kv=get_kv())
 
+def save_pos(uid, pos):
+	cache.hset("sender_pos", uid, str(pos))
+
+@app.route("/get_sender_pos/<int:uid>")
+def get_sender_pos(uid):
+	pos = eval(cache.hget("sender_pos", uid))
+	return json.dumps(pos)
+
 @app.route("/sender_api", methods=["post", "get"])
 def sender_api():
 	uid = request.json['uid']
@@ -364,7 +372,7 @@ def sender_api():
 	pos=dict()
 	pos['longitude']=longitude
 	pos['latitude']=latitude
-	print str(pos)
+	save_pos(uid, pos)
 	# print uid, longitude, latitude
 
 	orders = cache.smembers("rest_order_list")
