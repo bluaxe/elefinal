@@ -7,22 +7,54 @@
 	<title>Info</title>
 </head>
 <body>
-	<h1>未发出订单列表</h1>
-	<div>
-		{% for item in data %}
-        <li>
-        	<div>订单号:{{ item["_source"]["order_id"] }}</div>
-        	<div>商家:{{ item["_source"]["restaurant_id"] }}</div>
-        	<div>价格:{{ item["_source"]["total_price"] }}</div>
-        	<div>地址:{{ item["_source"]["address"] }}</div>
-        	<div>下单时间 :{{ item["_source"]["created_at"] }}</div>
-	        <a class="btn btn-primary" href="{{ url_for('receive_user_order', order_id=item['_source']['order_id'])}}">
-        		下单
-        	</a>
-        </li>
-        <br />
-    	{% endfor %}
-	</div>	
+	<h2 class="text-success">未发出订单列表</h2>
+
+
+    {% for item in data %}
+<div class="bs-example">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>订单信息</th>
+                <th>信息</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <tr>
+                <td>订单号</td>
+                <td>{{ item["_source"]["order_id"] }}</td>
+            </tr>
+
+            <tr>
+                <td>餐厅名称</td>
+                <td>{{ item["_source"]["restaurant_id"] }}</td>
+            </tr>
+
+             <tr>
+                <td>价格</td>
+                <td>{{ item["_source"]["total_price"] }}</td>
+            </tr>
+
+            <tr>
+                <td>用户地址</td>
+                <td>{{ item["_source"]["address"] }}</td>
+            </tr>
+
+             <tr>
+                <td>下单时间</td>
+                <td>{{ item["_source"]["created_at"] }}</td>
+            </tr>
+
+        </tbody>
+    </table>
+    <a class="btn btn-primary" href="{{ url_for('receive_user_order', order_id=item['_source']['order_id'])}}">下单</a>
+</div>
+
+{%endfor%}
+
+
+
 </body>
 </html>
 

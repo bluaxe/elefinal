@@ -12,21 +12,54 @@
 	<h1>用户主页</h1>
    <a class="btn btn-danger btn-lg btn-block " href="/user_commit">订单提交</a>
    
-   <h1>用户订单查询</h1>
+   <h2 class="text-success">用户订单查询</h2>
    <p>当前时间：{{ moment(current_time).format('LLL') }}</p>
+   
+
    <div>
-      {% for order in orders %}
-        <div>
-        ID:{{ order['order_id']}} <br />
-        创建时间{{ order['created_at']}} <br />
-        价格{{ order['total_price']}} <br />
-        餐厅名称{{ order['restaurant_name']}} <br />
-        状态:{{ order['status']}} <br />
-        <a class="btn btn-primary" href="{{ url_for('order_detail', order_id=order['order_id'])}}">详细</a>
-        <br />
-      </div>
-      {% endfor %}
-   </div>
+{% for order in orders %}
+<div class="bs-example">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>订单信息</th>
+                <th>信息</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <tr>
+                <td>订单号</td>
+                <td>{{order['order_id']}}</td>
+            </tr>
+
+             <tr>
+                <td>创建时间</td>
+                <td>{{ order['created_at']}}</td>
+            </tr>
+
+             <tr>
+                <td>价格</td>
+                <td>{{ order['total_price']}}</td>
+            </tr>
+
+             <tr>
+                <td>餐厅名称</td>
+                <td>{{ order['restaurant_name']}}</td>
+            </tr>
+
+             <tr>
+                <td>订单状态</td>
+                <td>{{ order['status']}}</td>
+            </tr>
+
+        </tbody>
+    </table>
+    <a class="btn btn-primary" href="{{ url_for('order_detail', order_id=order['order_id'])}}">详细</a>
+</div>
+
+{%endfor%}
+
 
 
 
