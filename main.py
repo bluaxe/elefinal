@@ -66,7 +66,14 @@ def create():
 @app.route("/")
 @count_request
 def index():
-	return render_template("index.html", reg=url_for("reg_page"), login=url_for("login_page"), count=cache.get("count"))
+	urls = dict()
+	urls['reg_url']=url_for("reg_page")
+	urls['login_url']=url_for("login_page")
+	urls['user_commit_url']=url_for("user_commit")
+	urls['user_order_url']=url_for("user_order")
+	urls['rest_post_url']=url_for("rest_post")
+	urls['dispatch_list_url']=url_for("dispatch_list")
+	return render_template("index.html", urls=urls)
 
 @app.route("/login", methods=["post"])
 def login_action():
@@ -128,6 +135,21 @@ def reg_action():
 def reg_page():
 	return render_template("reg.html", url=url_for("reg_action"))
 
+@app.route("/user_commit")
+def user_commit():
+	return render_template("user_commit.html")
+
+@app.route("/user_order")
+def user_order():
+	return render_template("user_order.html")
+
+@app.route("/rest_post")
+def rest_post():
+	return render_template("rest_post.html")
+
+@app.route("/dispatch_list")
+def dispatch_list():
+	return render_template("/dispatch_list.html")
 
 init()
 app.run(host="0.0.0.0", port=8080, debug=True)
