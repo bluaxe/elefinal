@@ -1,11 +1,13 @@
 from functools import wraps
 from flask import *
 
+from flask.ext.bootstrap import Bootstrap
 from flaskext.mysql import MySQL
 from flask.ext.redis import FlaskRedis
 
 
 app = Flask(__name__)
+bootstrap = Bootstrap(app)
 app.secret_key = 'A0Zr98j/3yX R~XHH!jDLfdsa22'
 
 app.config['MYSQL_DATABASE_USER'] = 'root'
