@@ -1,6 +1,7 @@
 from functools import wraps
 from flask import *
 import random
+import json
 
 from flask.ext.bootstrap import Bootstrap
 from flaskext.mysql import MySQL
@@ -351,9 +352,23 @@ def buyer():
 
 @app.route("/sender_api", methods=["post", "get"])
 def sender_api():
-	value=dict()
-	value['test']="fsa"
-	return jsonify(value)
+	uid = request.json['uid']
+	longitude= request.json['longitude']
+	latitude= request.json['latitude']
+	print uid, longitude, latitude
+
+	orders = cache.smembers("rest_order_list")
+	data = list()
+	otw_orders = cache.smembers("on_the_way_orders")
+	done_orders = cache.smembers("done_orders")
+	for order_id in orders:
+		if order_id in otw_orders:
+			continue
+		if done_orders in otw_orders:
+			continue
+		order = eval(cache.hget("rest_orders", order_id))
+		data.append(order)
+	return json.dumps(data)
 
 @app.route("/sender")
 def sender():

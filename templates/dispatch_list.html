@@ -78,10 +78,30 @@ var new_point = new BMap.Point(location_x,location_y);
 var marker = new BMap.Marker(new_point);
 window.map.addOverlay(marker);              // 将标注添加到地图中
 window.map.panTo(new_point);
-post("/sender_api",{id:kv['uid'],longtitude:location_x.toString(),latitude:location_y.toString()})
+// post("/sender_api",{id:kv['uid'],longtitude:location_x.toString(),latitude:location_y.toString()})
 //new_marker.setAnimation(BMAP_ANIMATION_BOUNCE);
 //window.map.panTo(new_point);
 
+data={};
+data['uid']={{kv['uid']}};
+data['longitude']=location_x;
+data['latitude']=location_y;
+$.ajax({
+        type : "POST",
+        url : "/sender_api",
+        data: JSON.stringify(data),
+        contentType: 'application/json;charset=UTF-8',
+        success: function(result) {
+            console.log(result);
+        }
+    });
+console.log("run update")
+/*
+$.post( "/sender_api", {uid:{{kv['uid']}},longtitude:location_x.toString(),latitude:location_y.toString()},function( data ) {
+				console.log(data);
+			});
+
+*/
 }
 
 
@@ -111,6 +131,9 @@ window.setInterval("updateLocation();",1000)
 var point = new BMap.Point(121, 31);  // 创建点坐标
 map.centerAndZoom(point, 15);                 // 初始化地图，设置中心点坐标和地图级别
 */
+
+
+
 </script>
 
 		</div>
@@ -150,16 +173,7 @@ for (order in orders){
 	<a href="{{url_for('sender_post', order_id=order['order_id'])}}" class="btn btn-primary">抢单</a>
 		{%endfor%}
 		</div>
-		<script type="text/javascript">
-		function send_get(){
-			$.post( "/sender_api", function( data ) {
-				console.log(data)
-			});
-		}
-		$(document).ready(function(){
-			setInterval(send_get, 1000);
-		});
-		</script>
+		<script type="text/javascript">		</script>
 	</div>
 </body>
 </html>
