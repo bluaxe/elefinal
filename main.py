@@ -8,7 +8,7 @@ from flask_bootstrap import Bootstrap
 
 import elasticsearch
 from flask.ext.moment import Moment  #time module
-from datetime import datetime
+from datetime import datetime, timedelta
 
 es = elasticsearch.Elasticsearch(["115.159.160.136:9200"])
 app = Flask(__name__)
@@ -156,6 +156,44 @@ def reg_action():
 def reg_page():
 	return render_template("reg.html", url=url_for("reg_action"))
 
+@app.route("/receive_rest_order/<int:order_id>", methods=["post"])
+def receive_rest_order(order_id):
+	ret = eval(cache.hget("user_orders", order_id))
+	print request.form
+	user_id = ret['user_id']
+	rest_id = ret['restaurant_id']
+	# print user_id, rest_id
+	now = datetime.now() 
+	ready_time = request.form['ready_time'].strip()
+	if ready_time  =='':
+		ready_minute = 0
+	else:
+		ready_minute = int(ready_time)
+	ready_time = (now + timedelta(minutes=ready_minute)).strftime("%Y-%m-%d %H:%M:%S")
+	deliver_time = request.form['dlv_time'].strip()
+	if deliver_time =='':
+		deliver_minute = 0
+	else:
+		deliver_minute = int(deliver_time)
+	deliver_time= (now + timedelta(minutes=deliver_minute)).strftime("%Y-%m-%d %H:%M:%S")
+	rest_order = {
+		"order_id":order_id,
+		"user_id": user_id,
+		"dispatch_price": 5,
+		"address": request.form['target_adr'],
+		"rest_address": request.form['shop_adr'],
+		"phone": "18817555221",
+		"ready_time" :ready_time,
+		"deliver_time" :deliver_time,
+		"latitude": 12.22,
+		"longitude": 214.12,
+	}
+	cache.hset("rest_orders", order_id, str(rest_order))	
+	cache.sadd("rest_order_list", order_id)
+	order = eval(str(rest_order))
+	# print order
+	return render_template("info.html", info="ok")
+
 @app.route("/receive_user_order/<int:order_id>")
 def receive_user_order(order_id):
 	query = {
@@ -167,23 +205,9 @@ def receive_user_order(order_id):
 		"sort": { "order_id" : "desc"},
 	}
 	ret = es.search(index="hackathon", doc_type='order', body=query)['hits']['hits'][0]['_source']
+	cache.sadd("user_order_list", order_id)
 	cache.hset("user_orders", order_id, ret)
-	user_id = ret['user_id']
-	rest_id = ret['restaurant_id']
-	# print user_id, rest_id
-	rest_order = {
-		"order_id":order_id,
-		"user_id": user_id,
-		"dispatch_price": 5,
-		"address": "ssss",
-		"phone": "18817555221",
-		"latitude": 12.22,
-		"longitude": 214.12,
-	}
-	cache.hset("rest_orders", order_id, str(rest_order))	
-	cache.sadd("rest_order_list", order_id)
-	order = eval(str(rest_order))
-	print order['order_id']
+	
 	return render_template("info.html", info="ok")	
 
 @app.route("/user_commit/<int:user_id>")
@@ -214,7 +238,20 @@ def user_order():
 
 @app.route("/rest_post")
 def rest_post():
-	return render_template("rest_post.html")
+	orders = cache.smembers("user_order_list")
+	data = list()
+	exist_orders = cache.hkeys("rest_orders")
+	for order_id in orders:
+		order = eval(cache.hget("user_orders", order_id))
+		if str(order_id) in exist_orders:
+			continue
+		send_price = 0
+		for ex in order['detail']['extra']:
+			send_price += ex['price']
+		order['send_price'] = send_price
+		order['seller_address'] = "seller_address place_holder"
+		data.append(order)
+	return render_template("rest_post.html", orders=data)
 
 @app.route("/dispatch_list")
 def dispatch_list():
@@ -231,15 +268,15 @@ def page_not_found(e):
 
 @app.route("/seller")
 def seller():
-	return render_template('seller.html')
+	return render_template('seller.html', kv=get_kv())
 
 @app.route("/buyer")
 def buyer():
-	return render_template('buyer.html')
+	return render_template('buyer.html', kv=get_kv())
 
 @app.route("/sender")
 def sender():
-	return render_template("sender.html")
+	return render_template("sender.html", kv=get_kv())
 
 init()
 app.run(host="0.0.0.0", port=8080, debug=True)

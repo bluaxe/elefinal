@@ -5,9 +5,13 @@
 <head>
 	<title>配送主页</title>
 </head>
+{%if kv['login'] != 1%}
+<meta http-equiv="refresh" content="1; url='/login'">
+{%else%}
 <body>
 	<h2>配送主页</h2>
    <h3><a href="/dispatch_list">抢单</h3>
 </body>
+{%endif%}
 </html>
 {%endblock%}

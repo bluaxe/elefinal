@@ -5,11 +5,15 @@
 <head>
 	<title>买家主页</title>
 </head>
+{%if kv['login'] != 1%}
+<meta http-equiv="refresh" content="1; url='/login'">
+{%else%}
 <body>
 	<h2>卖家主页</h2>
    <h3><a href="/user_commit">提交订单</a></h3>
    <h3>追踪订单</h3>
-   <h3><a href="/user_order">查询订单</a>></h3>
+   <h3><a href="/user_order">查询订单</a></h3>
 </body>
+{%endif%}
 </html>
 {%endblock%}
