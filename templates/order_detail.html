@@ -5,17 +5,64 @@
 <html>
 <head>
 	<title>Order detail</title>
+	<style type="text/css">
+	div#box{height: 600px;}
+	div#map{height: 80%}
+	</style>
 	<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+	<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=otOdjVKhA3mDttoGqsaDlyuP"></script>
 </head>
 <body>
+	<div class="row">
+	<h1 class="text-success col-md-offset-5">配送员狂奔中</h1>
+</div>
+	<div id='box' class="row">
+		<div id="map" class="col-md-8 col-md-offset-2"></div>
+	</div>
 	<div>
 		<div> {{order['order_id']}} </div>
 		<div id="status"> {{order['status']}} </div>
 		<div id="sender_uid" style="visibility: hidden; display:inline;" > {{order['sender_uid']}} </div>
-		
+
 	</div>
 	{{order}}
 	<script type="text/javascript">
+	//test-----
+	//var location_x = 121.380901337+Math.random()*0.000001//初始经度
+	//var location_y = 31.2458896637+Math.random()*0.000001//初始纬度
+	//test-----
+
+		function initMap(){
+		createMap();//创建地图
+		setMapEvent();//设置地图事件
+		addMapControl();//向地图添加控件
+		}
+
+		//创建地图函数：
+		function createMap(){
+		var map = new BMap.Map("map");//在百度地图容器中创建一个地图
+		window.map = map;//将map变量存储在全局
+		}
+		//地图事件设置函数：
+		function setMapEvent(){
+		map.enableDragging();//启用地图拖拽事件，默认启用(可不写)
+		map.enableScrollWheelZoom();//启用地图滚轮放大缩小
+		map.enableDoubleClickZoom();//启用鼠标双击放大，默认启用(可不写)
+		map.enableKeyboard();//启用键盘上下左右键移动地图
+		}
+
+		//地图控件添加函数：
+		function addMapControl(){
+		//向地图中添加缩放控件
+		var ctrl_nav = new BMap.NavigationControl({anchor:BMAP_ANCHOR_TOP_LEFT,type:BMAP_NAVIGATION_CONTROL_LARGE});
+		map.addControl(ctrl_nav);
+		//向地图中添加缩略图控件
+		var ctrl_ove = new BMap.OverviewMapControl({anchor:BMAP_ANCHOR_BOTTOM_RIGHT,isOpen:1});
+		map.addControl(ctrl_ove);
+		//向地图中添加比例尺控件
+		var ctrl_sca = new BMap.ScaleControl({anchor:BMAP_ANCHOR_BOTTOM_LEFT});
+		map.addControl(ctrl_sca);
+		}
 
 		function update_sender_pose(){
 			sender_uid = $("#sender_uid").html().trim()
@@ -29,10 +76,39 @@
 		        	longitude = ret['longitude']
 		        	console.log(latitude)
 		        	console.log(longitude)
+							window.map.clearOverlays();
+							var new_point = new BMap.Point(longitude,latitude);
+							var marker = new BMap.Marker(new_point);
+							window.map.addOverlay(marker);              // 将标注添加到地图中
+							window.map.panTo(new_point);
+
 		        }
 		    });
-		}
 
+/*				//test---------
+				var sign = 1
+				if (Math.random()>0.2){
+						sign = -1
+				}
+				else {
+						sign = 1
+				}
+				location_x = location_x + Math.random()*0.00001*sign
+				location_y = location_y + Math.random()*0.00001*sign
+				console.log(location_x)
+				console.log(location_y)
+				window.map.clearOverlays();
+				var new_point = new BMap.Point(location_x,location_y);
+				window.map.centerAndZoom(new_point,20);
+//	   		var myIcon = new BMap.Icon("http://developer.baidu.com/map/jsdemo/img/fox.gif"，new BMap.Size(300,157));
+				var marker = new BMap.Marker(new_point)//,{icon:myIcon});
+				window.map.addOverlay(marker);              // 将标注添加到地图中
+				marker.setAnimation(BMAP_ANIMATION_BOUNCE); //跳动的动画
+				window.map.panTo(new_point);
+*/
+				//test--------
+		}
+		initMap();//创建和初始化地图
 		$(document).ready(function(){
 			status = $("#status").html()
 			console.log(status)
