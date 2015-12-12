@@ -1,8 +1,47 @@
-<html>
-<head>
-	<title>info</title>
-</head>
+{% extends "base.html"%}
+
+{% block title%}商家提交{% endblock%}
+
+{% block content %}
 <body>
-	<h1>商家提交请求页面</h1>
+	<form class="form-horizontal">
+	  <div class="form-group form-group-lg">
+	    <label class="col-md-2 control-label" for="disp_fee">配送费</label>
+	    <div class="col-md-10">
+	      <input class="form-control" type="text" id="disp_fee" placeholder="5" name="disp_fee">
+	    </div>
+	  </div>
+		<div class="form-group form-group-lg">
+	    <label class="col-md-2 control-label" for="ready_time">预计几分钟后完成菜品</label>
+	    <div class="col-md-10">
+	      <input class="form-control" type="text" id="ready_time" placeholder="5" name="ready_time">
+	    </div>
+	  </div>
+		<div class="form-group form-group-lg">
+	    <label class="col-md-2 control-label" for="ready_time">预计几分钟后送达</label>
+	    <div class="col-md-10">
+	      <input class="form-control" type="text" id="dlv_time" placeholder="30" name="dlv_time">
+	    </div>
+	  </div>
+
+		<div class="form-group form-group-lg">
+	    <label class="col-md-2 control-label" for="shop_adr">商家地址</label>
+	    <div class="col-md-10">
+	      <input class="form-control" type="text" id="shop_adr" name="shop_adr">
+	    </div>
+
+	  </div>
+		<div class="form-group form-group-lg">
+	    <label class="col-md-2 control-label" for="target_adr">目的地址</label>
+	    <div class="col-md-10">
+	      <input class="form-control" type="text" id="target_adr" name="target_adr">
+	    </div>
+	  </div>
+
+	</form>
+
 </body>
-</html>
+
+
+
+{% endblock %}
