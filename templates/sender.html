@@ -50,7 +50,7 @@ document.write("<a href='{{url_for('arrival', order_id=order['order_id'])}}' cla
 <h2 class="text-success">配送中订单</h2>
 {% for order in orders %}
 {% if order['done'] == 0 %}
-<div class="bs-example">
+<div style="background-color:rgb(193, 255, 193)" class="bs-example">
     <table class="table">
         <thead>
             <tr>
@@ -133,7 +133,7 @@ document.write("<a href='{{url_for('arrival', order_id=order['order_id'])}}' cla
 <h2 class="text-success">已完成订单</h2>
 {% for order in orders %}
 {% if order['done'] == 1 %}
-<div class="bs-example">
+<div style="background-color:rgb(211, 211, 211)" class="bs-example ">
     <table class="table">
         <thead>
             <tr>

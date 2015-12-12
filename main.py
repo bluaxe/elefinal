@@ -11,6 +11,7 @@ from flask_bootstrap import Bootstrap
 import elasticsearch
 from flask.ext.moment import Moment  #time module
 from datetime import datetime, timedelta
+import math
 
 es = elasticsearch.Elasticsearch(["115.159.160.136:9200"])
 app = Flask(__name__)
@@ -60,6 +61,27 @@ def init():
 	for order in ret:
 		user_ids.append(order['_source']['user_id'])
 
+def rad(a):
+	return a * math.pi / 180
+
+def dist(pos1, pos2):
+	'''
+	lat1 = 31.245120521563523
+	lon1 = 121.38083458062272
+	lat2 = 31.245892678034142
+	lon2 = 121.38089756833982
+	'''
+	lat1 = pos1['latitude']
+	lat2 = pos2['latitude']
+	lon1 = pos1['longitude']
+	lon2 = pos2['longitude']
+	b = (lat1 + lat2) /2
+	dx = lon2 - lon1
+	dy = lat2 - lat1
+	lx = rad(dx) * 6367000.0* math.cos(rad(b))
+	ly = 6367000.0 * rad(dy)
+	return math.sqrt(lx * lx + ly * ly)
+
 def count_request(func):
 	@wraps(func)
 	def func_wrapper(*args, **kwargs):
@@ -90,8 +112,14 @@ def get_kv():
 	else:
 		kv['user_id'] = random.choice(user_ids)
 		session['user_id'] = kv['user_id']
-	kv['type'] = session['type']
-	kv['uid'] = session['uid']
+	if 'type' in session :
+		kv['type'] = session['type']
+	else:
+		kv['type'] = -1
+	if 'uid' in session :
+		kv['uid'] = session['uid']
+	else:
+		kv['uid'] = -1
 	return kv
 
 @app.route("/create")
@@ -261,6 +289,23 @@ def user_commit():
 			data.append(k)
 	return render_template("user_commit.html", data=data, kv=get_kv())
 
+def user_get_order_info(order_id):
+	order_id=str(order_id)
+	done_orders = cache.smembers("done_orders")
+	making_orders = cache.hkeys("user_orders")
+	on_the_way_orders = cache.smembers("on_the_way_orders")
+	order = eval(cache.hget("user_orders", order_id))
+	order['restaurant_name'] = get_rest_info(order['restaurant_id'])['restaurant_name']
+	order['status']="waiting"
+	if order_id in making_orders:
+		order['status']="making"
+	if order_id in done_orders:
+		order['status']="done"
+	if order_id in on_the_way_orders:
+		order['status']="on_the_way"	
+	return order
+
+@app.route("/buyer")
 @app.route("/user_order")
 @need_login
 def user_order():
@@ -284,12 +329,14 @@ def user_order():
 			order['status']="on_the_way"
 		data.append(order)
 	# print data
-	return render_template("user_order.html", current_time=datetime.utcnow(), orders=data, kv=get_kv())
+	return render_template("buyer.html", current_time=datetime.utcnow(), orders=data, kv=get_kv())
 
-@app.route("/order_detail")
+@app.route("/order_detail/<int:order_id>")
 @need_login
-def order_detail():
-	return render_template("order_detail.html")
+def order_detail(order_id):
+	order = user_get_order_info(order_id)
+	order['sender_uid'] = cache.hget("order_sender", order_id)
+	return render_template("order_detail.html", order=order)
 
 @app.route("/rest_post")
 @need_login
@@ -346,16 +393,28 @@ def page_not_found(e):
 def seller():
 	return render_template("seller.html", kv=get_kv())
 
-@app.route("/buyer")
-def buyer():
-	return render_template('buyer.html', kv=get_kv())
+#@app.route("/buyer")
+#def buyer():
+#	return render_template('buyer.html', kv=get_kv())
+
+def save_pos(uid, pos):
+	cache.hset("sender_pos", uid, str(pos))
+
+@app.route("/get_sender_pos/<int:uid>")
+def get_sender_pos(uid):
+	pos = eval(cache.hget("sender_pos", uid))
+	return json.dumps(pos)
 
 @app.route("/sender_api", methods=["post", "get"])
 def sender_api():
 	uid = request.json['uid']
 	longitude= request.json['longitude']
 	latitude= request.json['latitude']
-	print uid, longitude, latitude
+	pos=dict()
+	pos['longitude']=longitude
+	pos['latitude']=latitude
+	save_pos(uid, pos)
+	# print uid, longitude, latitude
 
 	orders = cache.smembers("rest_order_list")
 	data = list()
@@ -367,6 +426,12 @@ def sender_api():
 		if done_orders in otw_orders:
 			continue
 		order = eval(cache.hget("rest_orders", order_id))
+		op= dict()
+		op['longitude'] = order['longitude']
+		op['latitude'] = order['latitude']
+		# print dist(pos, op)
+		if dist(pos, op) > 5000:
+			continue
 		data.append(order)
 	return json.dumps(data)
 

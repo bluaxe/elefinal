@@ -3,16 +3,67 @@
 
 <html>
 <head>
-	<title>买家主页</title>
+	<title>用户主页</title>
 </head>
 {%if kv['login'] != 1%}
 <meta http-equiv="refresh" content="1; url='/login'">
 {%else%}
 <body>
-	<h2>卖家主页</h2>
-   <h3><a href="/user_commit">提交订单</a></h3>
-   <h3>追踪订单</h3>
-   <h3><a href="/user_order">查询订单</a></h3>
+	<h1>用户主页</h1>
+   <a class="btn btn-danger btn-lg btn-block " href="/user_commit">订单提交</a>
+   
+   <h2 class="text-success">用户订单查询</h2>
+   <p>当前时间：{{ moment(current_time).format('LLL') }}</p>
+   
+
+   <div>
+{% for order in orders %}
+<div class="bs-example">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>订单信息</th>
+                <th>信息</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <tr>
+                <td>订单号</td>
+                <td>{{order['order_id']}}</td>
+            </tr>
+
+             <tr>
+                <td>创建时间</td>
+                <td>{{ order['created_at']}}</td>
+            </tr>
+
+             <tr>
+                <td>价格</td>
+                <td>{{ order['total_price']}}</td>
+            </tr>
+
+             <tr>
+                <td>餐厅名称</td>
+                <td>{{ order['restaurant_name']}}</td>
+            </tr>
+
+             <tr>
+                <td>订单状态</td>
+                <td>{{ order['status']}}</td>
+            </tr>
+
+        </tbody>
+    </table>
+    <a class="btn btn-primary" href="{{ url_for('order_detail', order_id=order['order_id'])}}">详细</a>
+</div>
+
+{%endfor%}
+
+
+
+
+
 </body>
 {%endif%}
 </html>

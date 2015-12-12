@@ -1,8 +1,46 @@
+{% extends "base.html" %}
+
+{%block page_content%}
+
 <html>
 <head>
 	<title>Order detail</title>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 </head>
 <body>
+	<div>
+		<div> {{order['order_id']}} </div>
+		<div id="status"> {{order['status']}} </div>
+		<div id="sender_uid" style="visibility: hidden; display:inline;" > {{order['sender_uid']}} </div>
+		
+	</div>
+	{{order}}
+	<script type="text/javascript">
 
+		function update_sender_pose(){
+			sender_uid = $("#sender_uid").html().trim()
+			$.ajax({
+		        type : "GET",
+		        url : "/get_sender_pos/"+sender_uid,
+		        contentType: 'application/json;charset=UTF-8',
+		        success: function(result) {
+		        	ret = $.parseJSON(result)
+		        	latitude = ret['latitude']
+		        	longitude = ret['longitude']
+		        	console.log(latitude)
+		        	console.log(longitude)
+		        }
+		    });
+		}
+
+		$(document).ready(function(){
+			status = $("#status").html()
+			console.log(status)
+			if (status.trim()== "on_the_way") {
+				setInterval(update_sender_pose, 1000)
+			}
+		})
+	</script>
 </body>
 </html>
+{%endblock%}
