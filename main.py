@@ -159,9 +159,11 @@ def reg_page():
 @app.route("/receive_rest_order/<int:order_id>", methods=["post"])
 def receive_rest_order(order_id):
 	ret = eval(cache.hget("user_orders", order_id))
-	print request.form
 	user_id = ret['user_id']
 	rest_id = ret['restaurant_id']
+	
+	print ret['latitude']
+	# longitude = ret['']
 	# print user_id, rest_id
 	now = datetime.now() 
 	ready_time = request.form['ready_time'].strip()
@@ -185,8 +187,8 @@ def receive_rest_order(order_id):
 		"phone": "18817555221",
 		"ready_time" :ready_time,
 		"deliver_time" :deliver_time,
-		"latitude": 12.22,
-		"longitude": 214.12,
+		"latitude": ret['latitude'],
+		"longitude": ret['longitude'],
 	}
 	cache.hset("rest_orders", order_id, str(rest_order))	
 	cache.sadd("rest_order_list", order_id)
