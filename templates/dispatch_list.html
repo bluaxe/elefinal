@@ -9,7 +9,10 @@
 <title>外卖配送单信息</title>
 <style type="text/css">
 		div#map{height:500px}
-    div#container{height:100%}
+    div#container{
+			height:100%;
+			position: sticky;
+		}
 </style>
 <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=otOdjVKhA3mDttoGqsaDlyuP">
 //v2.0版本的引用方式：src="http://api.map.baidu.com/api?v=2.0&ak=您的密钥"
@@ -48,10 +51,20 @@
 	map.centerAndZoom(point,20);//设定地图的中心点和坐标并将地图显示在地图容器中
 	window.map = map;//将map变量存储在全局
 	var marker = new BMap.Marker(point);  // 创建标注
-	map.addOverlay(marker);
+	window.map.addOverlay(marker);
+	marker.setLabel(new BMap.Label("me",{offset:new BMap.Size(20,-10)}));
 	}
 
-	function updateLocation(){
+function updateLocation(){
+//remove previous spot
+/*var allOverlay = map.getOverlays();
+	for (var i = 0; i < allOverlay.length -1; i++){
+				if(allOverlay[i].getLabel().content == "me"){
+						map.removeOverlay(allOverlay[i]);
+						break;
+					}
+				}
+*/
 	window.map.clearOverlays();
 	tmp = tmp + 1
 	var sign = 1
@@ -66,6 +79,7 @@
 	var new_point = new BMap.Point(location_x,location_y);
 	var marker = new BMap.Marker(new_point);
 	window.map.addOverlay(marker);              // 将标注添加到地图中
+	marker.setLabel(new BMap.Label("me",{offset:new BMap.Size(20,-10)}));
 	window.map.panTo(new_point);
 	ot = document.getElementById('ordertable')
 	data={};
@@ -90,7 +104,8 @@
 								orderid = orders[parseInt(order)]['order_id']
 								table += "<div class='hovertable' latitude='"+
                                 orders[parseInt(order)]['latitude']+"' long='"+
-                                orders[parseInt(order)]['longitude']+
+                                orders[parseInt(order)]['longitude']+"'rest_name='"+
+																orders[parseInt(order)]['restaurant_name']+
                                 "'><table class='table' ><thead><tr><th>订单信息</th>"+
 								'<th>信息</th></tr></thead><tbody><tr><td>订单号</td><td>'+orders[parseInt(order)]["order_id"]+'</td>'+
 	            '</tr><tr><td>商家地址</td><td>'+orders[parseInt(order)]["rest_address"]+'</td></tr><tr><td>商家完成时间</td>'+
@@ -107,7 +122,22 @@
                         $(".hovertable").mouseover(function(){
                             latitude = $(this).attr('latitude')
                             longtitude = $(this).attr('long')
-                            console.log(latitude, longtitude)
+														rest_name = $(this).attr('rest_name')//.toString()
+                            console.log(latitude, longtitude,rest_name)
+														var new_point = new BMap.Point(longtitude,latitude);
+														var marker = new BMap.Marker(new_point);
+														window.map.addOverlay(marker);
+														marker.setLabel(new BMap.Label(rest_name,{offset:new BMap.Size(20,-10)}));
+													//	window.setTimeout(func(){
+														/*var allOverlay = map.getOverlays();
+														for (var i = 0; i < allOverlay.length -1; i++){
+																if(allOverlay[i].getLabel().content == $(this).attr('rest_name')){
+																		map.removeOverlay(allOverlay[i]);
+																		break;
+																	}
+																}*/
+													//		window.map.clearOverlays();
+													//	},2000)
                         })
 	        }
 	    });
