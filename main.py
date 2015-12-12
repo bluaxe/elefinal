@@ -89,6 +89,8 @@ def get_kv():
 	else:
 		kv['user_id'] = random.choice(user_ids)
 		session['user_id'] = kv['user_id']
+	kv['type'] = session['type']
+	kv['uid'] = session['uid']
 	return kv
 
 @app.route("/create")
@@ -347,17 +349,20 @@ def seller():
 def buyer():
 	return render_template('buyer.html', kv=get_kv())
 
+@app.route("/sender_api", methods=["post", "get"])
+def sender_api():
+	value=dict()
+	value['test']="fsa"
+	return jsonify(value)
+
 @app.route("/sender")
 def sender():
 	uid = session['uid']
 	my_order_ids = cache.smembers(uid)
-	print uid
-	print my_order_ids
 	orders = list()
 	done_orders = cache.smembers("done_orders")
 	for order_id in my_order_ids:
 		order = eval(cache.hget("rest_orders", order_id))
-		print order_id
 		if order_id in done_orders:
 			order['done'] = 1
 		else:
@@ -371,7 +376,7 @@ def arrival(order_id):
 	ret = cache.sadd("done_orders", order_id)
 	ret = cache.srem("on_the_way_orders", order_id)
 	uid = session['uid']
-	return render_template("info.html", url=url_for("sender"))
+	return render_template("info.html", info="ok", url=url_for("sender"))
 
 
 

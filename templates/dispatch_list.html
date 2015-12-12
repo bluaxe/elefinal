@@ -15,6 +15,7 @@
 //v2.0版本的引用方式：src="http://api.map.baidu.com/api?v=2.0&ak=您的密钥"
 //v1.4版本及以前版本的引用方式：src="http://api.map.baidu.com/api?v=1.4&key=您的密钥&callback=initialize"
 </script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 </head>
 	<div class="row" id="map">
 		<div class="col-md-8" id="container">
@@ -94,6 +95,16 @@ document.write("</div>")
 	<a href="{{url_for('sender_post', order_id=order['order_id'])}}" class="btn btn-primary">抢单</a>
 		{%endfor%}
 		</div>
+		<script type="text/javascript">
+		function send_get(){
+			$.post( "/sender_api", function( data ) {
+				console.log(data)
+			});
+		}
+		$(document).ready(function(){
+			setInterval(send_get, 1000);
+		});
+		</script>
 	</div>
 </body>
 </html>
