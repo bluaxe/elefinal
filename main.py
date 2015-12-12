@@ -261,6 +261,7 @@ def user_commit():
 			data.append(k)
 	return render_template("user_commit.html", data=data, kv=get_kv())
 
+@app.route("/buyer")
 @app.route("/user_order")
 @need_login
 def user_order():
@@ -284,7 +285,7 @@ def user_order():
 			order['status']="on_the_way"
 		data.append(order)
 	# print data
-	return render_template("user_order.html", current_time=datetime.utcnow(), orders=data, kv=get_kv())
+	return render_template("buyer.html", current_time=datetime.utcnow(), orders=data, kv=get_kv())
 
 @app.route("/order_detail")
 @need_login
@@ -346,9 +347,9 @@ def page_not_found(e):
 def seller():
 	return render_template("seller.html", kv=get_kv())
 
-@app.route("/buyer")
-def buyer():
-	return render_template('buyer.html', kv=get_kv())
+#@app.route("/buyer")
+#def buyer():
+#	return render_template('buyer.html', kv=get_kv())
 
 @app.route("/sender_api", methods=["post", "get"])
 def sender_api():

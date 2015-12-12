@@ -3,16 +3,34 @@
 
 <html>
 <head>
-	<title>买家主页</title>
+	<title>用户主页</title>
 </head>
 {%if kv['login'] != 1%}
 <meta http-equiv="refresh" content="1; url='/login'">
 {%else%}
 <body>
-	<h2>卖家主页</h2>
-   <h3><a href="/user_commit">提交订单</a></h3>
-   <h3>追踪订单</h3>
-   <h3><a href="/user_order">查询订单</a></h3>
+	<h1>用户主页</h1>
+   <a class="btn btn-danger btn-lg btn-block " href="/user_commit">订单提交</a>
+   
+   <h1>用户订单查询</h1>
+   <p>当前时间：{{ moment(current_time).format('LLL') }}</p>
+   <div>
+      {% for order in orders %}
+        <div>
+        ID:{{ order['order_id']}} <br />
+        创建时间{{ order['created_at']}} <br />
+        价格{{ order['total_price']}} <br />
+        餐厅名称{{ order['restaurant_name']}} <br />
+        状态:{{ order['status']}} <br />
+        <a class="btn btn-primary" href="{{ url_for('order_detail', order_id=order['order_id'])}}">详细</a>
+        <br />
+      </div>
+      {% endfor %}
+   </div>
+
+
+
+
 </body>
 {%endif%}
 </html>
