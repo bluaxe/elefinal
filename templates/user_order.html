@@ -1,8 +1,14 @@
-<html>
-<head>
-	<title>Info</title>
-</head>
+{% extends "base.html" %}
+
+{% block title %} Info {% endblock %}
+
+{% block page_content %}
 <body>
-	<h1>用户订单状态</h1>
+   <h1>用户订单状态</h1>
+{% if login %}
+<h2> 请登录！ </h2>
+{% endif %}
+<p>{{ moment(current_time).format('LLL') }}</p>
+<p>{{ moment(current_time).fromNow(refresh=True) }}</p>
 </body>
-</html>
+{% endblock %}
