@@ -4,11 +4,13 @@ from flask import *
 from flask.ext.bootstrap import Bootstrap
 from flaskext.mysql import MySQL
 from flask.ext.redis import FlaskRedis
+from flask_bootstrap import Bootstrap
 
+import elasticsearch
 from flask.ext.moment import Moment  #time module
 from datetime import datetime
 
-
+es = elasticsearch.Elasticsearch(["115.159.160.136:9200"])
 app = Flask(__name__)
 bootstrap = Bootstrap(app)
 moment = Moment(app) # time module
@@ -61,6 +63,18 @@ def need_login(func):
 		return func(*args, **kwargs)
 	return func_wrapper
 
+def get_kv():
+	kv=dict()
+	if 'login' in session :
+		kv['login'] = 1
+	else:
+		kv['login'] = 0
+	if 'user_id' in session :
+		kv['user_id'] = session['user_id']
+	else:
+		kv['user_id'] = 0
+	return kv
+
 @app.route("/create")
 @count_request
 def create():
@@ -75,11 +89,12 @@ def index():
 	urls = dict()
 	urls['reg_url']=url_for("reg_page")
 	urls['login_url']=url_for("login_page")
-	urls['user_commit_url']=url_for("user_commit")
+	urls['user_commit_url']=url_for("user_commit", user_id=149484)
 	urls['user_order_url']=url_for("user_order")
 	urls['rest_post_url']=url_for("rest_post")
 	urls['dispatch_list_url']=url_for("dispatch_list")
-	return render_template("index.html", urls=urls)
+
+	return render_template("index.html", urls=urls, kv=get_kv())
 
 @app.route("/login", methods=["post"])
 def login_action():
@@ -141,13 +156,25 @@ def reg_action():
 def reg_page():
 	return render_template("reg.html", url=url_for("reg_action"))
 
-@app.route("/user_commit")
-def user_commit():
-	return render_template("user_commit.html")
+@app.route("/user_commit/<int:user_id>")
+def user_commit(user_id):
+	session["user_id"]=user_id
+	query = {
+		"query":{
+			"match" : {
+				"user_id" : user_id
+			}
+		},
+		"sort": { "order_id" : "desc"},
+	}
+	ret = es.search(index="hackathon", doc_type='order', body=query)
+	data = ret['hits']['hits']
+	return render_template("user_commit.html", data=data, )
 
 @app.route("/user_order")
 def user_order():
-	return render_template("user_order.html", current_time=datetime.utcnow(), login=session['login'])
+	kv = get_kv()
+	return render_template("user_order.html", current_time=datetime.utcnow(), kv=kv)
 
 @app.route("/rest_post")
 def rest_post():
