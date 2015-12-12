@@ -249,6 +249,7 @@ def receive_rest_order(order_id):
 	else:
 		deliver_minute = int(deliver_time)
 	deliver_time= (now + timedelta(minutes=deliver_minute)).strftime("%Y-%m-%d %H:%M:%S")
+	rest_info = get_rest_info(rest_id)
 	rest_order = {
 		"order_id":order_id,
 		"user_id": user_id,
@@ -260,6 +261,9 @@ def receive_rest_order(order_id):
 		"deliver_time" :deliver_time,
 		"latitude": ret['latitude'],
 		"longitude": ret['longitude'],
+		"rest_longitude" : rest_info['longitude'],
+		"rest_latitude" : rest_info['latitude'],
+		"restaurant_name" : rest_info['restaurant_name'],
 	}
 	cache.hset("rest_orders", order_id, str(rest_order))	
 	cache.sadd("rest_order_list", order_id)
@@ -387,9 +391,10 @@ def dispatch_list():
 	for order_id in orders:
 		if order_id in otw_orders:
 			continue
-		if done_orders in otw_orders:
+		if order_id in done_orders:
 			continue
 		order = eval(cache.hget("rest_orders", order_id))
+		print order
 		data.append(order)
 	return render_template("/dispatch_list.html", orders=data, kv=get_kv())
 
