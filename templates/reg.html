@@ -6,14 +6,25 @@
 
 <body>
 
-<h2>注册</h2>
-<h3>请在下面注册框内输入用户名和密码</h3>
-<div>
-	<form action="{{url}}" method="post">
-		<input type="text" name="username" value ="Username" />	
-		<input type="password" name="password" value ="password" />	
-		<input type="submit" name="submit" value ="注册" />	
-	</form>
-</div>
+	<div class="col-md-6 col-md-offset-3" id="aaa">
+
+		<form class="form-signin" method="post" action={{url}}>
+			<h2 class="form-signin-heading">Register Page</h2>
+			<label for="inputEmail" class="sr-only">Username</label>
+			<input type="username" name="username"  id="username" class="form-control" placeholder="Username" required autofocus>
+			<label for="inputPassword" class="sr-only">Password</label>
+			<input type="password" name="password" id="password" class="form-control" placeholder="Password" required>
+			<div class="checkbox">
+			</div>
+			<button class="btn btn-primary btn-block" id = “submit” type="submit">Submit</button>
+		</form>
+
+
+	</div> <!-- /container -->
+
+
+	<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+<!--  <script src="../../assets/js/ie10-viewport-bug-workaround.js"></script> -->
 </body>
+
 {% endblock%}
