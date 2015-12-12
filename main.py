@@ -97,7 +97,7 @@ def create():
 	curse = mysql.connect().cursor()
 	curse.execute(create_table)
 	data = curse.fetchone()
-	return render_template("info.html", info="done")
+	return render_template("info.html", info="done", kv=get_kv())
 
 @app.route("/")
 @count_request
@@ -121,7 +121,7 @@ def login_action():
 	curse.execute(sql)
 	data = curse.fetchone()
 	if data is None:
-		return render_template("info.html", info="user not found")
+		return render_template("info.html", info="user not found", kv=get_kv())
 	# print data, passwd
 	if data[2]==passwd:
 		session['login'] = 1
@@ -134,19 +134,19 @@ def login_action():
 			return redirect(url_for("rest_post"))
 		if session['type'] ==2	:
 			return redirect(url_for("dispatch_list"))
-	return render_template("info.html", info="password not correct")
+	return render_template("info.html", info="password not correct", kv=get_kv())
 
 @app.route("/login")
 def login_page():
 	if 'login' in session:
 		# return render_template("info.html", info="already loged in.")
 		redirect(url_for("home"))	
-	return render_template("login.html", url=url_for("login_action"))
+	return render_template("login.html", url=url_for("login_action"), kv=get_kv())
 
 @app.route("/home")
 @need_login
 def home():
-	return render_template("home.html")
+	return render_template("home.html", kv=get_kv())
 
 
 @app.route("/logout")
@@ -155,7 +155,7 @@ def logout():
 	session.pop('login', None)
 	session.pop('user_id', None)
 	session.pop('type', None)
-	return render_template("logout.html")
+	return render_template("logout.html", kv=get_kv())
 
 @app.route("/reg", methods=["post"])
 def reg_action():
@@ -176,11 +176,11 @@ def reg_action():
 		print e
 		ret="already exists"
 	finally:
-		return render_template("info.html", info=ret)
+		return render_template("info.html", info=ret, kv=get_kv())
 
 @app.route("/reg")
 def reg_page():
-	return render_template("reg.html", url=url_for("reg_action"))
+	return render_template("reg.html", url=url_for("reg_action"), kv=get_kv())
 
 @app.route("/receive_rest_order/<int:order_id>", methods=["post"])
 def receive_rest_order(order_id):
@@ -256,7 +256,7 @@ def user_commit():
 		oder_id = k['_source']['order_id']
 		if str(oder_id) not in exist_orders:
 			data.append(k)
-	return render_template("user_commit.html", data=data)
+	return render_template("user_commit.html", data=data, kv=get_kv())
 
 @app.route("/user_order/<int:user_id>")
 @need_login
@@ -278,7 +278,7 @@ def user_order(user_id):
 		oder_id = k['_source']['order_id']
 		if str(oder_id) not in exist_orders:
 			data.append(k)
-	return render_template("user_order.html", current_time=datetime.utcnow(), data=data)
+	return render_template("user_order.html", current_time=datetime.utcnow(), data=data, kv=get_kv())
 
 @app.route("/rest_post")
 @need_login
@@ -297,7 +297,7 @@ def rest_post():
 		order['seller_address'] = get_rest_info(order['restaurant_id'])['address_text']
 		# order['seller_address'] = get_rest_info(order['restaurant_id'])['restaurant_name']
 		data.append(order)
-	return render_template("rest_post.html", orders=data)
+	return render_template("rest_post.html", orders=data, kv=get_kv())
 
 @app.route("/dispatch_list")
 @need_login
@@ -313,7 +313,7 @@ def dispatch_list():
 			continue
 		order = eval(cache.hget("rest_orders", order_id))
 		data.append(order)
-	return render_template("/dispatch_list.html", orders=data)
+	return render_template("/dispatch_list.html", orders=data, kv=get_kv())
 
 @app.route("/sender_post/<int:order_id>")
 @need_login
@@ -322,11 +322,11 @@ def sender_post(order_id):
 	uid = session['uid']
 	ret = cache.sadd("on_the_way_orders", order_id)
 	if ret==0:
-		return render_template("/info.html", info="get failed.")
+		return render_template("/info.html", info="get failed.", kv=get_kv())
 	cache.sadd(uid, order_id)
 	cache.hset("order_sender", order_id, uid)
-	return render_template("/info.html", info="ok")
-
+	return render_template("/info.html", info="ok", kv=get_kv())
+	
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template('404.html'),404
@@ -362,4 +362,4 @@ def arrival(order_id):
 
 
 init()
-app.run(host="0.0.0.0", port=8080, debug=True)
+app.run(host="0.0.0.0", port=8082, debug=True)

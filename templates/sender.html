@@ -63,6 +63,47 @@ document.write("<a href='{{url_for('sender_post', order_id=order['order_id'])}}'
 		{%endif%}
 		{%endfor%}
    </div>
+
+   <!--<h3><a href="/dispatch_list">抢单</a></h3> -->
+   <a class="btn btn-danger" href="/dispatch_list">抢单</a>
+   <h3 class="text-warning">配送中订单</h3>
+   {%if data%}
+   <div>
+      {% for item in data %}
+        <li>
+         <div>订单号:{{ item["_source"]["order_id"] }}</div>
+         <div>商家:{{ item["_source"]["restaurant_id"] }}</div>
+         <div>价格:{{ item["_source"]["total_price"] }}</div>
+         <div>地址:{{ item["_source"]["address"] }}</div>
+         <div>下单时间 :{{ item["_source"]["created_at"] }}</div>
+           <a class="btn btn-primary" href="{{ url_for('receive_user_order', order_id=item['_source']['order_id'])}}">
+            送达
+         </a>
+        </li>
+        <br />
+      {% endfor %}
+   </div>   
+   {%endif%}
+
+   <h3 class="text-success">已完成订单</h3>
+   {%if data%}
+   <div>
+      {% for item in data %}
+        <li>
+         <div>订单号:{{ item["_source"]["order_id"] }}</div>
+         <div>商家:{{ item["_source"]["restaurant_id"] }}</div>
+         <div>价格:{{ item["_source"]["total_price"] }}</div>
+         <div>地址:{{ item["_source"]["address"] }}</div>
+         <div>下单时间 :{{ item["_source"]["created_at"] }}</div>
+         <button type="button" class="btn btn-lg btn-primary" disabled="disabled">已送达</button>
+           
+         </a>
+        </li>
+        <br />
+      {% endfor %}
+   </div>   
+   {%endif%}
+
 </body>
 {%endif%}
 </html>
