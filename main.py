@@ -110,7 +110,7 @@ def login_action():
 	if data[2]==passwd:
 		session['login'] = 1
 		# return render_template("info.html", info="login ok")
-		return redirect(url_for("home"))
+		return redirect(url_for("user_commit", user_id=149484))
 	return render_template("info.html", info="password not correct")
 
 @app.route("/login")
