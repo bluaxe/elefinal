@@ -50,7 +50,15 @@
 
              <tr>
                 <td>订单状态</td>
-                <td>{{ order['status']}}</td>
+                {%if order['status'] == 'making'%}
+               <td>美食制作中</td>
+               {%endif%}
+               {%if order['status'] == 'on_the_way'%}
+               <td>配送中</td>
+               {%endif%}
+               {%if order['status'] == 'done'%}
+               <td>已完成</td>
+               {%endif%}
             </tr>
 
         </tbody>
