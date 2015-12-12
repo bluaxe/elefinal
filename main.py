@@ -249,6 +249,7 @@ def receive_rest_order(order_id):
 	else:
 		deliver_minute = int(deliver_time)
 	deliver_time= (now + timedelta(minutes=deliver_minute)).strftime("%Y-%m-%d %H:%M:%S")
+	rest_info = get_rest_info(rest_id)
 	rest_order = {
 		"order_id":order_id,
 		"user_id": user_id,
@@ -260,13 +261,16 @@ def receive_rest_order(order_id):
 		"deliver_time" :deliver_time,
 		"latitude": ret['latitude'],
 		"longitude": ret['longitude'],
+		"rest_longitude" : rest_info['longitude'],
+		"rest_latitude" : rest_info['latitude'],
+		"restaurant_name" : rest_info['restaurant_name'],
 	}
 	cache.hset("rest_orders", order_id, str(rest_order))	
 	cache.sadd("rest_order_list", order_id)
 	order = eval(str(rest_order))
 	add_order_info(order_id, "美食已出锅，正在等待配送")	
 	# print order
-	return render_template("info.html", info="ok", url=url_for("rest_post"))
+	return render_template("info.html", info="ok", url=url_for("rest_post"), kv=get_kv())
 
 @app.route("/receive_user_order/<int:order_id>")
 def receive_user_order(order_id):
@@ -283,7 +287,7 @@ def receive_user_order(order_id):
 	cache.sadd("user_order_list", order_id)
 	cache.hset("user_orders", order_id, ret)
 	add_order_info(order_id, "客户已下单")	
-	return render_template("info.html", info="ok", url=url_for("user_commit"))	
+	return render_template("info.html", info="ok", url=url_for("user_commit"), kv=get_kv())	
 
 @app.route("/user_commit")
 @need_login
@@ -356,7 +360,7 @@ def order_detail(order_id):
 	order_log = get_order_log(order_id)
 	order = user_get_order_info(order_id)
 	order['sender_uid'] = cache.hget("order_sender", order_id)
-	return render_template("order_detail.html", order=order, log=order_log)
+	return render_template("order_detail.html", order=order, log=order_log, kv=get_kv())
 
 @app.route("/rest_post")
 @need_login
@@ -387,9 +391,10 @@ def dispatch_list():
 	for order_id in orders:
 		if order_id in otw_orders:
 			continue
-		if done_orders in otw_orders:
+		if order_id in done_orders:
 			continue
 		order = eval(cache.hget("rest_orders", order_id))
+		print order
 		data.append(order)
 	return render_template("/dispatch_list.html", orders=data, kv=get_kv())
 
@@ -481,9 +486,9 @@ def arrival(order_id):
 	ret = cache.srem("on_the_way_orders", order_id)
 	uid = session['uid']
 	add_order_info(order_id, "外卖已送达")
-	return render_template("info.html", info="ok", url=url_for("sender"))
+	return render_template("info.html", info="ok", url=url_for("sender"), kv=get_kv())
 
 
 
 init()
-app.run(host="0.0.0.0", port=8083, debug=True)
+app.run(host="0.0.0.0", port=8088, debug=True)

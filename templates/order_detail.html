@@ -66,7 +66,6 @@
 
 		function update_sender_pose(){
 			sender_uid = $("#sender_uid").html().trim()
-			document.getElementById("peisong").value=sender_uid.toString();
 			$.ajax({
 		        type : "GET",
 		        url : "/get_sender_pos/"+sender_uid,
@@ -120,7 +119,9 @@
 		})
 	</script>
 
-<div class="bs-example">
+	<div class="bs-example">
+	<div id="status" style="display:none" >{{order['status']}}</div>
+	<div id="sender_uid" style="display:none" >{{order['sender_uid']}}</div>
     <table class="table">
         <thead>
             <tr>
@@ -172,7 +173,9 @@
         </tbody>
     </table>
 </div>
-
+<br />
+<br />
+<br />
 
 <div class="bs-example">
     <table class="table">
@@ -187,7 +190,7 @@
 
         {% for l in log%}
 			<tr>
-                <td>{{l}}}</td>
+                <td>{{l}}</td>
          </tr>
 		  {%endfor%}
             
