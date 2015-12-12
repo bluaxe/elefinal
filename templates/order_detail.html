@@ -28,8 +28,8 @@
 	{{order}}
 	<script type="text/javascript">
 	//test-----
-	var location_x = 121.380901337+Math.random()*0.000001//初始经度
-	var location_y = 31.2458896637+Math.random()*0.000001//初始纬度
+	//var location_x = 121.380901337+Math.random()*0.000001//初始经度
+	//var location_y = 31.2458896637+Math.random()*0.000001//初始纬度
 	//test-----
 
 		function initMap(){
@@ -76,16 +76,16 @@
 		        	longitude = ret['longitude']
 		        	console.log(latitude)
 		        	console.log(longitude)
-			/*				window.map.clearOverlays();
+							window.map.clearOverlays();
 							var new_point = new BMap.Point(longitude,latitude);
 							var marker = new BMap.Marker(new_point);
 							window.map.addOverlay(marker);              // 将标注添加到地图中
 							window.map.panTo(new_point);
-*/
+
 		        }
 		    });
 
-				//test---------
+/*				//test---------
 				var sign = 1
 				if (Math.random()>0.2){
 						sign = -1
@@ -105,7 +105,7 @@
 				window.map.addOverlay(marker);              // 将标注添加到地图中
 				marker.setAnimation(BMAP_ANIMATION_BOUNCE); //跳动的动画
 				window.map.panTo(new_point);
-
+*/
 				//test--------
 		}
 		initMap();//创建和初始化地图
