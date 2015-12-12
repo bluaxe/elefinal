@@ -11,6 +11,7 @@ from flask_bootstrap import Bootstrap
 import elasticsearch
 from flask.ext.moment import Moment  #time module
 from datetime import datetime, timedelta
+import math
 
 es = elasticsearch.Elasticsearch(["115.159.160.136:9200"])
 app = Flask(__name__)
@@ -59,6 +60,27 @@ def init():
 	ret = ret["hits"]['hits']
 	for order in ret:
 		user_ids.append(order['_source']['user_id'])
+
+def rad(a):
+	return a * math.pi / 180
+
+def dist(pos1, pos2):
+	'''
+	lat1 = 31.245120521563523
+	lon1 = 121.38083458062272
+	lat2 = 31.245892678034142
+	lon2 = 121.38089756833982
+	'''
+	lat1 = pos1['latitude']
+	lat2 = pos2['latitude']
+	lon1 = pos1['longitude']
+	lon2 = pos2['longitude']
+	b = (lat1 + lat2) /2
+	dx = lon2 - lon1
+	dy = lat2 - lat1
+	lx = rad(dx) * 6367000.0* math.cos(rad(b))
+	ly = 6367000.0 * rad(dy)
+	return math.sqrt(lx * lx + ly * ly)
 
 def count_request(func):
 	@wraps(func)
@@ -268,6 +290,7 @@ def user_commit():
 	return render_template("user_commit.html", data=data, kv=get_kv())
 
 def user_get_order_info(order_id):
+	order_id=str(order_id)
 	done_orders = cache.smembers("done_orders")
 	making_orders = cache.hkeys("user_orders")
 	on_the_way_orders = cache.smembers("on_the_way_orders")
@@ -402,6 +425,12 @@ def sender_api():
 		if done_orders in otw_orders:
 			continue
 		order = eval(cache.hget("rest_orders", order_id))
+		op= dict()
+		op['longitude'] = order['longitude']
+		op['latitude'] = order['latitude']
+		# print dist(pos, op)
+		if dist(pos, op) > 5000:
+			continue
 		data.append(order)
 	return json.dumps(data)
 
