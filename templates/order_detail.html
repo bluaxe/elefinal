@@ -26,6 +26,11 @@
 
 	</div>
 	{{order}}
+	<div>
+		{% for l in log%}
+			<li> {{l}} </li>
+		{%endfor%}
+	</div>
 	<script type="text/javascript">
 	//test-----
 	//var location_x = 121.380901337+Math.random()*0.000001//初始经度
@@ -109,11 +114,11 @@
 */
 				//test--------
 		}
-		initMap();//创建和初始化地图
 		$(document).ready(function(){
 			status = $("#status").html()
 			console.log(status)
 			if (status.trim()== "on_the_way") {
+				initMap();//创建和初始化地图
 				setInterval(update_sender_pose, 1000)
 			}
 		})

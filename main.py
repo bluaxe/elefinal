@@ -218,8 +218,17 @@ def reg_page():
 
 def add_order_info(order_id, info):
 	time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")	
-	# cache.zadd()
-	print time
+	info=time+" " + info
+	key = "of"+str(order_id)
+	cache.lpush(key, info)
+
+def get_order_log(order_id):
+	key = "of"+str(order_id)
+	logs = cache.lrange(key, 0, -1)
+	data=[]
+	for log in logs:
+		data.append(log.decode("utf8"))
+	return data
 
 @app.route("/receive_rest_order/<int:order_id>", methods=["post"])
 def receive_rest_order(order_id):
@@ -344,9 +353,10 @@ def user_order():
 @app.route("/order_detail/<int:order_id>")
 @need_login
 def order_detail(order_id):
+	order_log = get_order_log(order_id)
 	order = user_get_order_info(order_id)
 	order['sender_uid'] = cache.hget("order_sender", order_id)
-	return render_template("order_detail.html", order=order)
+	return render_template("order_detail.html", order=order, log=order_log)
 
 @app.route("/rest_post")
 @need_login
@@ -470,6 +480,7 @@ def arrival(order_id):
 	ret = cache.sadd("done_orders", order_id)
 	ret = cache.srem("on_the_way_orders", order_id)
 	uid = session['uid']
+	add_order_info(order_id, "外卖已送达")
 	return render_template("info.html", info="ok", url=url_for("sender"))
 
 
