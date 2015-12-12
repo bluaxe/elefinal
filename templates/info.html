@@ -7,6 +7,9 @@
 </head>
 <body>
 	<h1>{{info}}</h1>
+   {%if url%}
+   <meta http-equiv="refresh" content="3; url={{url}}">
+   {%endif%}
 </body>
 </html>
 {%endblock%}
