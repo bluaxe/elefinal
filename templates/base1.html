@@ -21,12 +21,12 @@
                 <li><a href="/sender">配送</a></li>
                 {%if kv%}
                     {%if kv['login'] == 1%}
-                    <li><a href='/logout'>退出</a></li>
+                    <li class="pull-right"><a href='/logout'>退出</a></li>
                     {%else%}
-                    <li><a href='/login'>登陆/注册</a></li>
+                    <li class="pull-right"><a href='/login'>登陆/注册</a></li>
                     {%endif%}
                 {%else%}
-                <li><a href='/login'>登陆/注册</a></li>
+                <li class="pull-right"><a href='/login'>登陆/注册</a></li>
                 {%endif%}
 
             </ul>
@@ -45,7 +45,34 @@
 </div>
 {% endfor %}
 
-{% block page_content %}{% endblock %}
+{% block page_content %}
+
+    <div class="carousel" data-role="carousel">
+        <div class="slides">
+            <div class="slide image" id="slide1">
+                <img />
+                <div class="description">
+                    Description text here...
+                </div>
+            </div>
+ 
+            <div class="slide mixed" id="slide2">
+                <img />
+                <div class="description">
+                    Description text here...
+                </div>
+            </div>
+            ...
+        </div>
+ 
+        <span class="control left">‹</span>
+        <span class="control right">›</span>
+ 
+    </div>
+    
+
+
+{% endblock %}
 </div>
 
 {% block scripts %}

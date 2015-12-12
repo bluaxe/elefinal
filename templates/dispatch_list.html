@@ -135,46 +135,64 @@ map.centerAndZoom(point, 15);                 // 初始化地图，设置中心�
 
 
 </script>
+</div>
+<div class="col-md-4">
+<h2 class="text-success">最新外卖配送单列表</h2>
+{% for order in orders %}
+{%if order['latitude'] > 5%}
+<div class="bs-example">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>订单信息</th>
+                <th>信息</th>
+            </tr>
+        </thead>
 
-		</div>
-		<div class="col-md-4">
-			<input id="list" width=200px></input>
-			{% for order in orders %}
+        <tbody>
+            <tr>
+                <td>订单号</td>
+                <td>{{order['order_id']}}</td>
+            </tr>
 
-				<script>
-//				document.getElementById("list").value = location_x
-//document.getElementById("list").value = 1;//order['latitude']
+             <tr>
+                <td>商家地址</td>
+                <td>{{order['rest_address']}}</td>
+            </tr>
 
-/*var order;
-for (order in orders){
-	var point_rest = new BMap.Point(order['latitude'],order['longitude']);//定义一个中心点坐标
-	var dist = map.getDistance(point_rest,new_point)).toFixed(2)
-*/
-//		if (dist > 0)
-	{
-	document.write("<div>")
-	document.write("<li>")
-	document.write("订单号{{order['order_id']}} <br />")
-	document.write("用户号{{order['user_id']}} <br />")
-	document.write("配送费{{order['dispatch_price']}} <br />")
-	document.write("商家完成时间{{order['ready_time']}} <br />")
-	document.write("商家地址{{order['rest_address']}} <br />")
-	document.write("客户地址{{order['address']}} <br />")
-	document.write("最晚送达时间{{order['deliver_time']}} <br />")
-	document.write("电话{{order['phone']}} <br />")
-	document.write("维度{{order['latitude']}} <br />")
-	document.write("经度{{order['longitude']}} <br />")
-	document.write("</li>")
-	document.write("</div>")
+             <tr>
+                <td>商家完成时间</td>
+                <td>{{order['ready_time']}}</td>
+            </tr>
 
-	}
+             <tr>
+                <td>客户地址</td>
+                <td>{{order['address']}}</td>
+            </tr>
 
-		</script>
-	<a href="{{url_for('sender_post', order_id=order['order_id'])}}" class="btn btn-primary">抢单</a>
-		{%endfor%}
-		</div>
-		<script type="text/javascript">		</script>
-	</div>
+             <tr>
+                <td>客户电话</td>
+                <td>{{order['phone']}}</td>
+            </tr>
+
+             <tr>
+                <td>最晚送达时间</td>
+                <td>{{order['deliver_time']}}</td>
+            </tr>
+
+            <tr>
+                <td>配送费</td>
+                <td>{{order['dispatch_price']}}</td>
+            </tr>
+
+        </tbody>
+    </table>
+</div>
+<a href="{{url_for('sender_post', order_id=order['order_id'])}}" class="btn btn-primary">抢单</a>
+
+{%endif%}
+{%endfor%}
+</div>
 </body>
 </html>
 {%endblock%}
