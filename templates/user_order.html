@@ -5,10 +5,24 @@
 {% block page_content %}
 <body>
    <h1>用户订单状态</h1>
-{% if login %}
-<h2> 请登录！ </h2>
-{% endif %}
-<p>{{ moment(current_time).format('LLL') }}</p>
-<p>{{ moment(current_time).fromNow(refresh=True) }}</p>
+   <p>当前时间：{{ moment(current_time).format('LLL') }}</p>
+   <div>
+      {% for item in data %}
+        <li>
+         <div>订单号:{{ item["_source"]["order_id"] }}</div>
+         <div>商家:{{ item["_source"]["restaurant_id"] }}</div>
+         <div>价格:{{ item["_source"]["total_price"] }}</div>
+         <div>地址:{{ item["_source"]["address"] }}</div>
+         <div>下单时间 :{{ item["_source"]["created_at"] }}</div>
+           <a class="btn btn-primary" href="{{ url_for('receive_user_order', order_id=item['_source']['order_id'])}}">
+            追踪
+         </a>
+        </li>
+        <br />
+      {% endfor %}
+   </div>
+
 </body>
 {% endblock %}
+
+
