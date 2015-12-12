@@ -24,7 +24,7 @@ app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 mysql = MySQL()
 mysql.init_app(app)
 
-app.config['REDIS_URL'] = "redis://:@dl.bile.dog:6379/"
+app.config['REDIS_URL'] = "redis://:@115.159.160.136:6379/"
 cache = FlaskRedis(app)
 
 create_table = '''
@@ -156,6 +156,36 @@ def reg_action():
 def reg_page():
 	return render_template("reg.html", url=url_for("reg_action"))
 
+@app.route("/receive_user_order/<int:order_id>")
+def receive_user_order(order_id):
+	query = {
+		"query":{
+			"match" : {
+				"order_id" :order_id 
+			}
+		},
+		"sort": { "order_id" : "desc"},
+	}
+	ret = es.search(index="hackathon", doc_type='order', body=query)['hits']['hits'][0]['_source']
+	cache.hset("user_orders", order_id, ret)
+	user_id = ret['user_id']
+	rest_id = ret['restaurant_id']
+	# print user_id, rest_id
+	rest_order = {
+		"order_id":order_id,
+		"user_id": user_id,
+		"dispatch_price": 5,
+		"address": "ssss",
+		"phone": "18817555221",
+		"latitude": 12.22,
+		"longitude": 214.12,
+	}
+	cache.hset("rest_orders", order_id, str(rest_order))	
+	cache.sadd("rest_order_list", order_id)
+	order = eval(str(rest_order))
+	print order['order_id']
+	return render_template("info.html", info="ok")	
+
 @app.route("/user_commit/<int:user_id>")
 def user_commit(user_id):
 	session["user_id"]=user_id
@@ -167,9 +197,15 @@ def user_commit(user_id):
 		},
 		"sort": { "order_id" : "desc"},
 	}
-	ret = es.search(index="hackathon", doc_type='order', body=query)
-	data = ret['hits']['hits']
-	return render_template("user_commit.html", data=data, )
+	retr = es.search(index="hackathon", doc_type='order', body=query)
+	ret = retr['hits']['hits']
+	exist_orders = cache.hkeys("user_orders")
+	data = []
+	for k in ret:
+		oder_id = k['_source']['order_id']
+		if str(oder_id) not in exist_orders:
+			data.append(k)
+	return render_template("user_commit.html", data=data)
 
 @app.route("/user_order")
 def user_order():
@@ -182,7 +218,12 @@ def rest_post():
 
 @app.route("/dispatch_list")
 def dispatch_list():
-	return render_template("/dispatch_list.html")
+	orders = cache.smembers("rest_order_list")
+	data = list()
+	for order_id in orders:
+		order = eval(cache.hget("rest_orders", order_id))
+		data.append(order)
+	return render_template("/dispatch_list.html", orders=data)
 
 @app.errorhandler(404)
 def page_not_found(e):
