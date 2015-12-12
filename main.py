@@ -267,6 +267,21 @@ def user_commit():
 			data.append(k)
 	return render_template("user_commit.html", data=data, kv=get_kv())
 
+def user_get_order_info(order_id):
+	done_orders = cache.smembers("done_orders")
+	making_orders = cache.hkeys("user_orders")
+	on_the_way_orders = cache.smembers("on_the_way_orders")
+	order = eval(cache.hget("user_orders", order_id))
+	order['restaurant_name'] = get_rest_info(order['restaurant_id'])['restaurant_name']
+	order['status']="waiting"
+	if order_id in making_orders:
+		order['status']="making"
+	if order_id in done_orders:
+		order['status']="done"
+	if order_id in on_the_way_orders:
+		order['status']="on_the_way"	
+	return order
+
 @app.route("/buyer")
 @app.route("/user_order")
 @need_login
@@ -293,10 +308,12 @@ def user_order():
 	# print data
 	return render_template("buyer.html", current_time=datetime.utcnow(), orders=data, kv=get_kv())
 
-@app.route("/order_detail")
+@app.route("/order_detail/<int:order_id>")
 @need_login
-def order_detail():
-	return render_template("order_detail.html")
+def order_detail(order_id):
+	order = user_get_order_info(order_id)
+	order['sender_uid'] = cache.hget("order_sender", order_id)
+	return render_template("order_detail.html", order=order)
 
 @app.route("/rest_post")
 @need_login
