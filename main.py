@@ -90,7 +90,7 @@ def index():
 	urls['reg_url']=url_for("reg_page")
 	urls['login_url']=url_for("login_page")
 	urls['user_commit_url']=url_for("user_commit", user_id=149484)
-	urls['user_order_url']=url_for("user_order")
+	urls['user_order_url']=url_for("user_order", user_id=149484)
 	urls['rest_post_url']=url_for("rest_post")
 	urls['dispatch_list_url']=url_for("dispatch_list")
 
@@ -110,7 +110,7 @@ def login_action():
 	if data[2]==passwd:
 		session['login'] = 1
 		# return render_template("info.html", info="login ok")
-		return redirect(url_for("home"))
+		return redirect(url_for("user_commit", user_id=149484))
 	return render_template("info.html", info="password not correct")
 
 @app.route("/login")
@@ -233,10 +233,26 @@ def user_commit(user_id):
 			data.append(k)
 	return render_template("user_commit.html", data=data)
 
-@app.route("/user_order")
-def user_order():
-	kv = get_kv()
-	return render_template("user_order.html", current_time=datetime.utcnow(), kv=kv)
+@app.route("/user_order/<int:user_id>")
+def user_order(user_id):
+	session["user_id"]=user_id
+	query = {
+		"query":{
+			"match" : {
+				"user_id" : user_id
+			}
+		},
+		"sort": { "order_id" : "desc"},
+	}
+	retr = es.search(index="hackathon", doc_type='order', body=query)
+	ret = retr['hits']['hits']
+	exist_orders = cache.hkeys("user_orders")
+	data = []
+	for k in ret:
+		oder_id = k['_source']['order_id']
+		if str(oder_id) not in exist_orders:
+			data.append(k)
+	return render_template("user_order.html", current_time=datetime.utcnow(), data=data)
 
 @app.route("/rest_post")
 def rest_post():

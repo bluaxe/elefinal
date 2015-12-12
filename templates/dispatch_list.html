@@ -5,28 +5,28 @@
 {% block content %}
 
 <head>
-	<link href="../static/js/bootstrap.min.js" rel="stylesheet">
 	<title>外卖配送单信息</title>
 </head>
-<body>
-	<h1>配送人员抢单页面</h1>
 	<div class="row">
 		<div class="col-md-8">
-			<h2>地图</h2>
+			<p>地图</p>
 		</div>
 		<div class="col-md-4">
 			<h2>最新外卖配送单列表</h2>
 			{% for order in orders %}
 
 				<script>
-//		if ({{order['latitude']}} > 5)
+		if ({{order['latitude']}} < 5)
 {
 document.write("<div>")
 document.write("<li>")
 document.write("订单号{{order['order_id']}} <br />")
 document.write("用户号{{order['user_id']}} <br />")
 document.write("配送费{{order['dispatch_price']}} <br />")
-document.write("地址{{order['address']}} <br />")
+document.write("商家完成时间{{order['ready_time']}} <br />")
+document.write("商家地址{{order['rest_address']}} <br />")
+document.write("客户地址{{order['address']}} <br />")
+document.write("最晚送达时间{{order['deliver_time']}} <br />")
 document.write("电话{{order['phone']}} <br />")
 document.write("维度{{order['latitude']}} <br />")
 document.write("经度{{order['longitude']}} <br />")
@@ -35,22 +35,9 @@ document.write("</div>")
 
 }
 		</script>
-
-<!--
-				订单号{{order['order_id']}} <br />
-					用户号{{order['user_id']}} <br />
-					配送费{{order['dispatch_price']}} <br />
-					地址{{order['address']}} <br />
-					电话{{order['phone']}} <br />
-					维度{{order['latitude']}} <br />
-					经度{{order['longitude']}} <br />
-				</div>
-			</li>")
-		-->
-			{% endfor %}
-
+		{%endfor%}
 		</div>
-</div>
+	</div>
 </body>
 </html>
 {%endblock%}
