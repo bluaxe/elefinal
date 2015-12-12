@@ -1,5 +1,6 @@
 from functools import wraps
 from flask import *
+import random
 
 from flask.ext.bootstrap import Bootstrap
 from flaskext.mysql import MySQL
@@ -27,26 +28,35 @@ mysql.init_app(app)
 app.config['REDIS_URL'] = "redis://:@115.159.160.136:6379/"
 cache = FlaskRedis(app)
 
+buyer_type = 0
+seller_type = 1
+sender_type = 2
+
 create_table = '''
 create table if not exists users(
                         id int NOT NULL AUTO_INCREMENT,
                         name VARCHAR(64) NOT NULL,
                         password VARCHAR(64) NOT NULL DEFAULT '',
+                        type int NOT NULL default 0,
                         PRIMARY KEY(id),
                         UNIQUE(name)
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8
 '''
 
 add_line = '''
-insert into users(name, password) values("%s", "%s");
+insert into users(name, password, type) values("%s", "%s", "%s");
 '''
 
 get_user = '''
 select * from users where name='%s'
 '''
 
+user_ids=list()
 def init():
-	pass
+	ret = es.search(index="hackathon", doc_type='order', body={"size": 1000, "from": 10})
+	ret = ret["hits"]['hits']
+	for order in ret:
+		user_ids.append(order['_source']['user_id'])
 
 def count_request(func):
 	@wraps(func)
@@ -54,6 +64,10 @@ def count_request(func):
 		cache.incr("count", 1)
 		return func(*args, **kwargs)
 	return func_wrapper
+
+def get_rest_info(rest_id):
+	ret = es.get(index="hackathon", doc_type='restaurant', id=rest_id)[u'_source']
+	return ret
 
 def need_login(func):
 	@wraps(func)
@@ -72,7 +86,8 @@ def get_kv():
 	if 'user_id' in session :
 		kv['user_id'] = session['user_id']
 	else:
-		kv['user_id'] = 0
+		kv['user_id'] = random.choice(user_ids)
+		session['user_id'] = kv['user_id']
 	return kv
 
 @app.route("/create")
@@ -106,11 +121,17 @@ def login_action():
 	data = curse.fetchone()
 	if data is None:
 		return render_template("info.html", info="user not found")
-	print data, passwd
+	# print data, passwd
 	if data[2]==passwd:
 		session['login'] = 1
+		session['type'] = data[3]
 		# return render_template("info.html", info="login ok")
-		return redirect(url_for("user_commit", user_id=149484))
+		if session['type'] ==0 :
+			return redirect(url_for("user_commit"))
+		if session['type'] ==1 :
+			return redirect(url_for("rest_post"))
+		if session['type'] ==2	:
+			return redirect(url_for("dispatch_list"))
 	return render_template("info.html", info="password not correct")
 
 @app.route("/login")
@@ -130,13 +151,16 @@ def home():
 @need_login
 def logout():
 	session.pop('login', None)
+	session.pop('user_id', None)
+	session.pop('type', None)
 	return render_template("logout.html")
 
 @app.route("/reg", methods=["post"])
 def reg_action():
 	username = request.form["username"]
 	passwd = request.form["password"]
-	sql = add_line % (username, passwd)
+	user_type = request.form["type"]
+	sql = add_line % (username, passwd, user_type)
 
 	ret = "unexpected error"
 	try:
@@ -161,27 +185,24 @@ def receive_rest_order(order_id):
 	ret = eval(cache.hget("user_orders", order_id))
 	user_id = ret['user_id']
 	rest_id = ret['restaurant_id']
-	
-	print ret['latitude']
-	# longitude = ret['']
-	# print user_id, rest_id
+
 	now = datetime.now() 
 	ready_time = request.form['ready_time'].strip()
 	if ready_time  =='':
-		ready_minute = 0
+		ready_minute = 5
 	else:
 		ready_minute = int(ready_time)
 	ready_time = (now + timedelta(minutes=ready_minute)).strftime("%Y-%m-%d %H:%M:%S")
 	deliver_time = request.form['dlv_time'].strip()
 	if deliver_time =='':
-		deliver_minute = 0
+		deliver_minute = 30
 	else:
 		deliver_minute = int(deliver_time)
 	deliver_time= (now + timedelta(minutes=deliver_minute)).strftime("%Y-%m-%d %H:%M:%S")
 	rest_order = {
 		"order_id":order_id,
 		"user_id": user_id,
-		"dispatch_price": 5,
+		"dispatch_price": request.form['disp_fee'],
 		"address": request.form['target_adr'],
 		"rest_address": request.form['shop_adr'],
 		"phone": "18817555221",
@@ -212,9 +233,11 @@ def receive_user_order(order_id):
 	
 	return render_template("info.html", info="ok")	
 
-@app.route("/user_commit/<int:user_id>")
-def user_commit(user_id):
-	session["user_id"]=user_id
+@app.route("/user_commit")
+@need_login
+def user_commit():
+	user_id = get_kv()['user_id']
+	print user_id
 	query = {
 		"query":{
 			"match" : {
@@ -234,6 +257,7 @@ def user_commit(user_id):
 	return render_template("user_commit.html", data=data)
 
 @app.route("/user_order/<int:user_id>")
+@need_login
 def user_order(user_id):
 	session["user_id"]=user_id
 	query = {
@@ -255,6 +279,7 @@ def user_order(user_id):
 	return render_template("user_order.html", current_time=datetime.utcnow(), data=data)
 
 @app.route("/rest_post")
+@need_login
 def rest_post():
 	orders = cache.smembers("user_order_list")
 	data = list()
@@ -267,11 +292,13 @@ def rest_post():
 		for ex in order['detail']['extra']:
 			send_price += ex['price']
 		order['send_price'] = send_price
-		order['seller_address'] = "seller_address place_holder"
+		order['seller_address'] = get_rest_info(order['restaurant_id'])['address_text']
+		# order['seller_address'] = get_rest_info(order['restaurant_id'])['restaurant_name']
 		data.append(order)
 	return render_template("rest_post.html", orders=data)
 
 @app.route("/dispatch_list")
+@need_login
 def dispatch_list():
 	orders = cache.smembers("rest_order_list")
 	data = list()
