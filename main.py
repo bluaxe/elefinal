@@ -121,7 +121,7 @@ def login_action():
 	curse.execute(sql)
 	data = curse.fetchone()
 	if data is None:
-		return render_template("info.html", info="user not found", kv=get_kv())
+		return render_template("info.html", info="user not found", kv=get_kv(), url=url_for("login_page"))
 	# print data, passwd
 	if data[2]==passwd:
 		session['login'] = 1
@@ -134,7 +134,7 @@ def login_action():
 			return redirect(url_for("rest_post"))
 		if session['type'] ==2	:
 			return redirect(url_for("dispatch_list"))
-	return render_template("info.html", info="password not correct", kv=get_kv())
+	return render_template("info.html", info="password not correct", kv=get_kv(), url=url_for("login_page"))
 
 @app.route("/login")
 def login_page():
@@ -217,7 +217,7 @@ def receive_rest_order(order_id):
 	cache.sadd("rest_order_list", order_id)
 	order = eval(str(rest_order))
 	# print order
-	return render_template("info.html", info="ok")
+	return render_template("info.html", info="ok", url=url_for("rest_post"))
 
 @app.route("/receive_user_order/<int:order_id>")
 def receive_user_order(order_id):
@@ -233,7 +233,7 @@ def receive_user_order(order_id):
 	cache.sadd("user_order_list", order_id)
 	cache.hset("user_orders", order_id, ret)
 	
-	return render_template("info.html", info="ok")	
+	return render_template("info.html", info="ok", url=url_for("user_commit"))	
 
 @app.route("/user_commit")
 @need_login
@@ -258,27 +258,35 @@ def user_commit():
 			data.append(k)
 	return render_template("user_commit.html", data=data, kv=get_kv())
 
-@app.route("/user_order/<int:user_id>")
+@app.route("/user_order")
 @need_login
-def user_order(user_id):
-	session["user_id"]=user_id
-	query = {
-		"query":{
-			"match" : {
-				"user_id" : user_id
-			}
-		},
-		"sort": { "order_id" : "desc"},
-	}
-	retr = es.search(index="hackathon", doc_type='order', body=query)
-	ret = retr['hits']['hits']
-	exist_orders = cache.hkeys("user_orders")
+def user_order():
+	user_id = session["user_id"]
+	orders = cache.hkeys("user_orders")
+	done_orders = cache.smembers("done_orders")
+	making_orders = cache.hkeys("user_orders")
+	on_the_way_orders = cache.smembers("on_the_way_orders")
 	data = []
-	for k in ret:
-		oder_id = k['_source']['order_id']
-		if str(oder_id) not in exist_orders:
-			data.append(k)
-	return render_template("user_order.html", current_time=datetime.utcnow(), data=data, kv=get_kv())
+	for order_id in orders:
+		order = eval(cache.hget("user_orders", order_id))
+		if order['user_id'] != user_id:
+			continue
+		order['restaurant_name'] = get_rest_info(order['restaurant_id'])['restaurant_name']
+		order['status']="waiting"
+		if order_id in making_orders:
+			order['status']="making"
+		if order_id in done_orders:
+			order['status']="done"
+		if order_id in on_the_way_orders:
+			order['status']="on_the_way"
+		data.append(order)
+	# print data
+	return render_template("user_order.html", current_time=datetime.utcnow(), orders=data, kv=get_kv())
+
+@app.route("/order_detail")
+@need_login
+def order_detail():
+	return render_template("order_detail.html")
 
 @app.route("/rest_post")
 @need_login
@@ -322,11 +330,11 @@ def sender_post(order_id):
 	uid = session['uid']
 	ret = cache.sadd("on_the_way_orders", order_id)
 	if ret==0:
-		return render_template("/info.html", info="get failed.", kv=get_kv())
+		return render_template("/info.html", info="get failed.", kv=get_kv(), url=url_for("dispatch_list"))
 	cache.sadd(uid, order_id)
 	cache.hset("order_sender", order_id, uid)
-	return render_template("/info.html", info="ok", kv=get_kv())
-	
+	return render_template("/info.html", info="ok", kv=get_kv(), url=url_for("dispatch_list"))
+
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template('404.html'),404
@@ -343,10 +351,13 @@ def buyer():
 def sender():
 	uid = session['uid']
 	my_order_ids = cache.smembers(uid)
+	print uid
+	print my_order_ids
 	orders = list()
 	done_orders = cache.smembers("done_orders")
 	for order_id in my_order_ids:
 		order = eval(cache.hget("rest_orders", order_id))
+		print order_id
 		if order_id in done_orders:
 			order['done'] = 1
 		else:
@@ -357,6 +368,9 @@ def sender():
 
 @app.route("/arrival/<int:order_id>")
 def arrival(order_id):
+	ret = cache.sadd("done_orders", order_id)
+	ret = cache.srem("on_the_way_orders", order_id)
+	uid = session['uid']
 	return render_template("info.html", url=url_for("sender"))
 
 
