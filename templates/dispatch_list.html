@@ -1,8 +1,21 @@
-<html>
+{% extends "base.html"%}
+
+{% block title%}配送人员抢单{% endblock%}
+
+{% block content %}
+
 <head>
-	<title>Info</title>
+	<title>外卖配送单信息</title>
 </head>
 <body>
-	<h1>配送人员抢单页面</h1>
+	<div class="row">
+		<div class="col-md-8">
+			<p>地图</p>
+		</div>
+		<div class="col-md-4">
+			<h>最新外卖配送单列表</h>
+		</div>
+	</div>
 </body>
 </html>
+{%endblock%}
