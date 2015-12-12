@@ -15,25 +15,30 @@
         </div>
         <div class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
-                <li><a href="/">首页</a></li>
                 {%if kv%}
                     {%if kv['login'] == 1%}
                     {%if kv['type'] == 0%}
-                    <li><a href='/buyer'>买家主页</a></li>
+                    <li><a href='/buyer'>客户主页</a></li>
+                    <li><a href='/user_commit'>提交订单</a></li>
+
                     {%endif%}
 
                     {%if kv['type'] == 1%}
-                    <li><a href='/seller'>卖家主页</a></li>
+                    <li><a href='/seller'>商户主页</a></li>
+                    <li><a href='/rest_post'>发放订单</a></li>
                     {%endif%}
 
                     {%if kv['type'] == 2%}
                     <li><a href='/sender'>配送主页</a></li>
+                    <li><a href='/dispatch_list'>抢单</a></li>
                     {%endif%}
+
                     <li><a href='/logout'>退出</a></li>
                     {%else%}
                     <li><a href='/login'>登陆/注册</a></li>
                     {%endif%}
                 {%else%}
+                <li><a href="/">首页</a></li>
                 <li class="pull-right"><a href='/login'>登陆/注册</a></li>
                 {%endif%}
             </ul>

@@ -9,9 +9,10 @@
 <meta http-equiv="refresh" content="1; url='/login'">
 {%else%}
 <body>
-	<h1>用户主页</h1>
-   <a class="btn btn-danger btn-lg btn-block " href="/user_commit">订单提交</a>
-   
+	<h1 class="text-primary">用户订单信息</h1>
+{%if orders|length == 0%}
+   <h2 class="text-warning">当前用户没有任何订单信息</h2>
+   {%else%}
    <h2 class="text-success">用户订单查询</h2>
    <p>当前时间：{{ moment(current_time).format('LLL') }}</p>
    
@@ -73,7 +74,7 @@
 
 
 
-
+{%endif%}
 </body>
 {%endif%}
 </html>

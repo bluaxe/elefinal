@@ -6,6 +6,9 @@
 <body>
 	<div class="col-md-offset-5">
 	<h1 text-align=center>外卖配送单</h1>
+	{%if orders|length == 0%}
+	<h2 class="text-warning">当前没有任何订单</h2>
+	{%else%}
 	{% for order in orders %}
 		<br />
 		<div>
@@ -49,6 +52,7 @@
 		</div>
 		<br />
 	{% endfor %}
+	{%endif%}
 
 	
 
