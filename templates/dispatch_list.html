@@ -9,7 +9,7 @@
 <title>外卖配送单信息</title>
 <style type="text/css">
 		div#map{height:500px}
-    div#container{height:500px}
+    div#container{height:100%}
 </style>
 <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=otOdjVKhA3mDttoGqsaDlyuP">
 //v2.0版本的引用方式：src="http://api.map.baidu.com/api?v=2.0&ak=您的密钥"
@@ -18,7 +18,12 @@
 </head>
 	<div class="row" id="map">
 		<div class="col-md-8" id="container">
+			<h2>地图</h2>
 <script type="text/javascript">
+
+var location_x = 121.380901337+Math.random()*0.000001//初始经度
+var location_y = 31.2458896637+Math.random()*0.000001//初始纬度
+var tmp = 1;
 
 function initMap(){
 createMap();//创建地图
@@ -29,13 +34,37 @@ addMapControl();//向地图添加控件
 //创建地图函数：
 function createMap(){
 var map = new BMap.Map("container");//在百度地图容器中创建一个地图
-var point = new BMap.Point(121.380901337,31.2458896637);//定义一个中心点坐标
-map.centerAndZoom(point,17);//设定地图的中心点和坐标并将地图显示在地图容器中
+var point = new BMap.Point(location_x,location_y);//定义一个中心点坐标
+map.centerAndZoom(point,20);//设定地图的中心点和坐标并将地图显示在地图容器中
 window.map = map;//将map变量存储在全局
 var marker = new BMap.Marker(point);  // 创建标注
 map.addOverlay(marker);
-marker.setAnimation(BMAP_ANIMATION_BOUNCE);
+//marker.setAnimation(BMAP_ANIMATION_BOUNCE);
 }
+
+function updateLocation(){
+window.map.clearOverlays();
+tmp = tmp + 1
+var sign = 1
+if (Math.random()>0.2){
+		sign = -1
+}
+else {
+		sign = 1
+}
+location_x = location_x + Math.random()*0.00001*sign
+location_y = location_y + Math.random()*0.00001*sign
+document.getElementById("list").value = location_x
+var new_point = new BMap.Point(location_x,location_y);
+//window.map.centerAndZoom(new_point,17);
+var marker = new BMap.Marker(new_point);
+window.map.addOverlay(marker);              // 将标注添加到地图中
+window.map.panTo(new_point);
+//new_marker.setAnimation(BMAP_ANIMATION_BOUNCE);
+//window.map.panTo(new_point);
+
+}
+
 
 //地图事件设置函数：
 function setMapEvent(){
@@ -58,7 +87,7 @@ var ctrl_sca = new BMap.ScaleControl({anchor:BMAP_ANCHOR_BOTTOM_LEFT});
 map.addControl(ctrl_sca);
 }
 initMap();//创建和初始化地图
-
+window.setInterval("updateLocation();",100)
 /*var map = new BMap.Map("container");          // 创建地图实例
 var point = new BMap.Point(121, 31);  // 创建点坐标
 map.centerAndZoom(point, 15);                 // 初始化地图，设置中心点坐标和地图级别
@@ -67,7 +96,7 @@ map.centerAndZoom(point, 15);                 // 初始化地图，设置中心�
 
 		</div>
 		<div class="col-md-4">
-			<h2>最新外卖配送单列表</h2>
+			<input id="list" width=200px></input>
 			{% for order in orders %}
 
 				<script>
