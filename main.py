@@ -451,7 +451,7 @@ def sender_api():
 	for order_id in orders:
 		if order_id in otw_orders:
 			continue
-		if done_orders in otw_orders:
+		if order_id in done_orders:
 			continue
 		order = eval(cache.hget("rest_orders", order_id))
 		op= dict()
@@ -491,4 +491,4 @@ def arrival(order_id):
 
 
 init()
-app.run(host="0.0.0.0", port=8088, debug=True)
+app.run(host="0.0.0.0", port=80, debug=True)
