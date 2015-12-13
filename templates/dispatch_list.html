@@ -13,6 +13,25 @@
 			height:100%;
 			position: fixed;
 		}
+        div#baidumap{
+            height:100%;
+            position: fixed;
+            top:60px;
+            z-index: 1000000;
+        }
+        div#placc{
+            height: 100%;
+
+        }
+        div#ddddd{
+            position: fixed;
+            top: 0px;
+            z-index: 1000000;
+            width: 100%;
+        }
+        div#orders{
+            margin-top: 60px;
+        }
 </style>
 <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=otOdjVKhA3mDttoGqsaDlyuP">
 //v2.0版本的引用方式：src="http://api.map.baidu.com/api?v=2.0&ak=您的密钥"
@@ -21,11 +40,15 @@
 <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 </head>
 <div class="row" id="map">
-	<div class="col-md-8" id="container">
-			<h2>地图</h2>
-	</div>
-	<div class="col-md-4" >
-			<h2>订单</h2>
+    <div id="baidumap" class="col-md-8">
+    	<div class="col-md-12" id="container">
+    			<h2>地图</h2>
+    	</div>
+    </div>
+    <div id="placc" class="col-md-8">
+    </div>
+	<div class="col-md-4" id="orders">
+			<h2>待配送订单</h2>
 			<div id="ordertable"></div>
 	</div>
 </div>
