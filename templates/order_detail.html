@@ -11,17 +11,23 @@
 	</style>
 	<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 	<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=otOdjVKhA3mDttoGqsaDlyuP"></script>
+	<style type="text/css">
+		h1.infos{
+			margin: 0 auto;
+			text-align: center;
+		}
+	</style>
 </head>
 <body>
 	<div class="row">
 		{%if order['status'] == 'making'%}
-		<h1 class="text-success col-md-offset-5">卖家正在为您准备美食...请耐心等待</h1>
+		<h1 class="text-success infos">卖家正在为您准备美食...请耐心等待</h1>
 		{%endif%}
 		{%if order['status'] == 'on_the_way'%}
-		<h1 class="text-success col-md-offset-5">配送员狂奔中...</h1>
+		<h1 class="text-success infos">配送员狂奔中...</h1>
 		{%endif%}
 		{%if order['status'] == 'done'%}
-		<h1 class="text-success col-md-offset-5">您的订单已完成,欢迎下次品尝</h1>
+		<h1 class="text-success infos">您的订单已完成,欢迎下次品尝</h1>
 		{%endif%}
 	</div>
 

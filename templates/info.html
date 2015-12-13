@@ -5,8 +5,19 @@
 <head>
 	<title>Info</title>
 </head>
+<style type="text/css">
+	div#info{
+		text-align: center;
+		font-size: 60px;
+	}	
+</style>
 <body>
-	<h1 class = >{{info}}</h1>
+	<div class="col-md-6 col-md-offset-3" id="info">
+		{% if info == "ok" %}	
+			<!-- {{info}} -->
+			操作成功!
+		{% endif %}
+	</div>
    {%if url%}
    <meta http-equiv="refresh" content="1; url={{url}}">
    {%endif%}
